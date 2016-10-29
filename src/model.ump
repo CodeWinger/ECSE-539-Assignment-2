@@ -1,0 +1,64 @@
+namespace ca.mcgill.ecse539.btms.model;
+
+class BTMS{
+ singleton;
+ 1 <@>- *  Bus;
+ 1 <@>- * Route;
+ //1 <@>- * Shift;
+ 1 <@>- * Driver; 
+ 
+ Date currentDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+ //Date threeDaysFromCurrentDate = {getCurrentDate() + };
+ //add associatiosn to shift objects?
+}
+
+class Bus
+{
+  * -- 1 Route;
+  
+  unique String licensePlate;
+  Boolean needsRepair = false;
+}
+
+class Route
+{
+	immutable Integer routeNumber;
+	//not sure if we should add association to shift here...
+	// * -- 1..3 Shift
+}
+
+associationClass Driver{
+  1 Bus;
+  1..3 Shift ;
+  
+   immutable name;
+   autounique id;
+   Boolean isSick = false;
+}
+
+class Shift
+{
+	abstract;
+}
+
+//find way to make Shift contain name attribute
+class Morning
+{
+	singleton;
+	isA Shift;
+	immutable name = "Morning";
+}
+
+class Afternoon
+{
+	singleton;
+	isA Shift;
+	immutable name = "Afternoon";
+}
+
+class Night
+{
+	singleton;
+	isA Shift;
+	immutable name = "Night";
+}
