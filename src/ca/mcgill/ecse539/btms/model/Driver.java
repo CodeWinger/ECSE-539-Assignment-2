@@ -4,7 +4,7 @@
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 78 "../../../../../model.ump"
+// line 23 "../../../../../model.ump"
 public class Driver
 {
 
@@ -27,44 +27,13 @@ public class Driver
 
   //Driver Associations
   private BTMS bTMS;
-  private Bus bus;
-  private Shift shift;
-
-  //Helper Variables
-  private int cachedHashCode;
-  private boolean canSetBus;
-  private boolean canSetShift;
+  private List<RouteWorkShift> routeWorkShifts;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Driver(String aName, BTMS aBTMS, Bus aBus, Shift aShift)
-  {
-    cachedHashCode = -1;
-    canSetBus = true;
-    canSetShift = true;
-    name = aName;
-    isSick = false;
-    id = nextId++;
-    boolean didAddBTMS = setBTMS(aBTMS);
-    if (!didAddBTMS)
-    {
-      throw new RuntimeException("Unable to create driver due to bTMS");
-    }
-    if (aBus == null || aBus.getDriver() != null)
-    {
-      throw new RuntimeException("Unable to create Driver due to aBus");
-    }
-    bus = aBus;
-    boolean didAddShift = setShift(aShift);
-    if (!didAddShift)
-    {
-      throw new RuntimeException("Unable to create driver due to shift");
-    }
-  }
-
-  public Driver(String aName, BTMS aBTMS, String aLicensePlateForBus, Route aRouteForBus, BTMS aBTMSForBus, Shift aShift)
+  public Driver(String aName, BTMS aBTMS)
   {
     name = aName;
     isSick = false;
@@ -74,12 +43,7 @@ public class Driver
     {
       throw new RuntimeException("Unable to create driver due to bTMS");
     }
-    bus = new Bus(aLicensePlateForBus, aRouteForBus, aBTMSForBus, this);
-    boolean didAddShift = setShift(aShift);
-    if (!didAddShift)
-    {
-      throw new RuntimeException("Unable to create driver due to shift");
-    }
+    routeWorkShifts = new ArrayList<RouteWorkShift>();
   }
 
   //------------------------
@@ -94,6 +58,9 @@ public class Driver
     return wasSet;
   }
 
+  /**
+   * 1 -- * RouteShift;
+   */
   public String getName()
   {
     return name;
@@ -119,14 +86,34 @@ public class Driver
     return bTMS;
   }
 
-  public Bus getBus()
+  public RouteWorkShift getRouteWorkShift(int index)
   {
-    return bus;
+    RouteWorkShift aRouteWorkShift = routeWorkShifts.get(index);
+    return aRouteWorkShift;
   }
 
-  public Shift getShift()
+  public List<RouteWorkShift> getRouteWorkShifts()
   {
-    return shift;
+    List<RouteWorkShift> newRouteWorkShifts = Collections.unmodifiableList(routeWorkShifts);
+    return newRouteWorkShifts;
+  }
+
+  public int numberOfRouteWorkShifts()
+  {
+    int number = routeWorkShifts.size();
+    return number;
+  }
+
+  public boolean hasRouteWorkShifts()
+  {
+    boolean has = routeWorkShifts.size() > 0;
+    return has;
+  }
+
+  public int indexOfRouteWorkShift(RouteWorkShift aRouteWorkShift)
+  {
+    int index = routeWorkShifts.indexOf(aRouteWorkShift);
+    return index;
   }
 
   public boolean setBTMS(BTMS aBTMS)
@@ -143,105 +130,91 @@ public class Driver
     {
       existingBTMS.removeDriver(this);
     }
-    if (!bTMS.addDriver(this))
-    {
-      bTMS = existingBTMS;
-      wasSet = false;
-    }
-    else
-    {
-      wasSet = true;
-    }
-    return wasSet;
-  }
-
-  public boolean setShift(Shift aShift)
-  {
-    boolean wasSet = false;
-    if (!canSetShift) { return false; }
-    //Must provide shift to driver
-    if (aShift == null)
-    {
-      return wasSet;
-    }
-
-    //shift already at maximum (3)
-    if (aShift.numberOfDrivers() >= Shift.maximumNumberOfDrivers())
-    {
-      return wasSet;
-    }
-    
-    Shift existingShift = shift;
-    shift = aShift;
-    if (existingShift != null && !existingShift.equals(aShift))
-    {
-      boolean didRemove = existingShift.removeDriver(this);
-      if (!didRemove)
-      {
-        shift = existingShift;
-        return wasSet;
-      }
-    }
-    shift.addDriver(this);
+    bTMS.addDriver(this);
     wasSet = true;
     return wasSet;
   }
 
-  public boolean equals(Object obj)
+  public static int minimumNumberOfRouteWorkShifts()
   {
-    if (obj == null) { return false; }
-    if (!getClass().equals(obj.getClass())) { return false; }
-
-    Driver compareTo = (Driver)obj;
-  
-    if (bus == null && compareTo.bus != null)
-    {
-      return false;
-    }
-    else if (bus != null && !bus.equals(compareTo.bus))
-    {
-      return false;
-    }
-
-    if (shift == null && compareTo.shift != null)
-    {
-      return false;
-    }
-    else if (shift != null && !shift.equals(compareTo.shift))
-    {
-      return false;
-    }
-
-    return true;
+    return 0;
   }
 
-  public int hashCode()
+  public boolean addRouteWorkShift(RouteWorkShift aRouteWorkShift)
   {
-    if (cachedHashCode != -1)
+    boolean wasAdded = false;
+    if (routeWorkShifts.contains(aRouteWorkShift)) { return false; }
+    routeWorkShifts.add(aRouteWorkShift);
+    if (aRouteWorkShift.indexOfDriver(this) != -1)
     {
-      return cachedHashCode;
-    }
-    cachedHashCode = 17;
-    if (bus != null)
-    {
-      cachedHashCode = cachedHashCode * 23 + bus.hashCode();
+      wasAdded = true;
     }
     else
     {
-      cachedHashCode = cachedHashCode * 23;
+      wasAdded = aRouteWorkShift.addDriver(this);
+      if (!wasAdded)
+      {
+        routeWorkShifts.remove(aRouteWorkShift);
+      }
     }
-    if (shift != null)
+    return wasAdded;
+  }
+
+  public boolean removeRouteWorkShift(RouteWorkShift aRouteWorkShift)
+  {
+    boolean wasRemoved = false;
+    if (!routeWorkShifts.contains(aRouteWorkShift))
     {
-      cachedHashCode = cachedHashCode * 23 + shift.hashCode();
-    }
-    else
-    {
-      cachedHashCode = cachedHashCode * 23;
+      return wasRemoved;
     }
 
-    canSetBus = false;
-    canSetShift = false;
-    return cachedHashCode;
+    int oldIndex = routeWorkShifts.indexOf(aRouteWorkShift);
+    routeWorkShifts.remove(oldIndex);
+    if (aRouteWorkShift.indexOfDriver(this) == -1)
+    {
+      wasRemoved = true;
+    }
+    else
+    {
+      wasRemoved = aRouteWorkShift.removeDriver(this);
+      if (!wasRemoved)
+      {
+        routeWorkShifts.add(oldIndex,aRouteWorkShift);
+      }
+    }
+    return wasRemoved;
+  }
+
+  public boolean addRouteWorkShiftAt(RouteWorkShift aRouteWorkShift, int index)
+  {  
+    boolean wasAdded = false;
+    if(addRouteWorkShift(aRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfRouteWorkShifts()) { index = numberOfRouteWorkShifts() - 1; }
+      routeWorkShifts.remove(aRouteWorkShift);
+      routeWorkShifts.add(index, aRouteWorkShift);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveRouteWorkShiftAt(RouteWorkShift aRouteWorkShift, int index)
+  {
+    boolean wasAdded = false;
+    if(routeWorkShifts.contains(aRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfRouteWorkShifts()) { index = numberOfRouteWorkShifts() - 1; }
+      routeWorkShifts.remove(aRouteWorkShift);
+      routeWorkShifts.add(index, aRouteWorkShift);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addRouteWorkShiftAt(aRouteWorkShift, index);
+    }
+    return wasAdded;
   }
 
   public void delete()
@@ -249,15 +222,12 @@ public class Driver
     BTMS placeholderBTMS = bTMS;
     this.bTMS = null;
     placeholderBTMS.removeDriver(this);
-    Bus existingBus = bus;
-    bus = null;
-    if (existingBus != null)
+    ArrayList<RouteWorkShift> copyOfRouteWorkShifts = new ArrayList<RouteWorkShift>(routeWorkShifts);
+    routeWorkShifts.clear();
+    for(RouteWorkShift aRouteWorkShift : copyOfRouteWorkShifts)
     {
-      existingBus.delete();
+      aRouteWorkShift.removeDriver(this);
     }
-    Shift placeholderShift = shift;
-    this.shift = null;
-    placeholderShift.removeDriver(this);
   }
 
 
@@ -268,9 +238,7 @@ public class Driver
             "id" + ":" + getId()+ "," +
             "name" + ":" + getName()+ "," +
             "isSick" + ":" + getIsSick()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "bTMS = "+(getBTMS()!=null?Integer.toHexString(System.identityHashCode(getBTMS())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "bus = "+(getBus()!=null?Integer.toHexString(System.identityHashCode(getBus())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "shift = "+(getShift()!=null?Integer.toHexString(System.identityHashCode(getShift())):"null")
+            "  " + "bTMS = "+(getBTMS()!=null?Integer.toHexString(System.identityHashCode(getBTMS())):"null")
      + outputString;
   }
 }

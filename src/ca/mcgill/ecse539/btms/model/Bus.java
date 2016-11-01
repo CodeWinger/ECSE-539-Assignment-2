@@ -20,61 +20,29 @@ public class Bus
 
   //Bus Attributes
   private String licensePlate;
-
-  //Bus State Machines
-  enum Sm { notBroken, broken }
-  enum SmNotBroken { Null, day000, day001, day010, day011, day100, day101, day110, day111 }
-  private Sm sm;
-  private SmNotBroken smNotBroken;
+  private boolean needsRepair;
 
   //Bus Associations
-  private Route route;
   private BTMS bTMS;
-  private Driver driver;
+  private List<RouteWorkShift> routeWorkShifts;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Bus(String aLicensePlate, Route aRoute, BTMS aBTMS, Driver aDriver)
+  public Bus(String aLicensePlate, BTMS aBTMS)
   {
+    needsRepair = false;
     if (!setLicensePlate(aLicensePlate))
     {
       throw new RuntimeException("Cannot create due to duplicate licensePlate");
     }
-    boolean didAddRoute = setRoute(aRoute);
-    if (!didAddRoute)
-    {
-      throw new RuntimeException("Unable to create bus due to route");
-    }
     boolean didAddBTMS = setBTMS(aBTMS);
     if (!didAddBTMS)
     {
       throw new RuntimeException("Unable to create bus due to bTMS");
     }
-    if (aDriver == null || aDriver.getBus() != null)
-    {
-      throw new RuntimeException("Unable to create Bus due to aDriver");
-    }
-    driver = aDriver;
-    setSmNotBroken(SmNotBroken.Null);
-    setSm(Sm.notBroken);
-  }
-
-  public Bus(String aLicensePlate, Route aRoute, BTMS aBTMS, String aNameForDriver, BTMS aBTMSForDriver, Shift aShiftForDriver)
-  {
-    licensePlate = aLicensePlate;
-    boolean didAddRoute = setRoute(aRoute);
-    if (!didAddRoute)
-    {
-      throw new RuntimeException("Unable to create bus due to route");
-    }
-    boolean didAddBTMS = setBTMS(aBTMS);
-    if (!didAddBTMS)
-    {
-      throw new RuntimeException("Unable to create bus due to bTMS");
-    }
-    driver = new Driver(aNameForDriver, aBTMSForDriver, this, aShiftForDriver);
+    routeWorkShifts = new ArrayList<RouteWorkShift>();
   }
 
   //------------------------
@@ -97,6 +65,17 @@ public class Bus
     return wasSet;
   }
 
+  public boolean setNeedsRepair(boolean aNeedsRepair)
+  {
+    boolean wasSet = false;
+    needsRepair = aNeedsRepair;
+    wasSet = true;
+    return wasSet;
+  }
+
+  /**
+   * 1 -- * RouteShift;
+   */
   public String getLicensePlate()
   {
     return licensePlate;
@@ -112,228 +91,14 @@ public class Bus
     return getWithLicensePlate(aLicensePlate) != null;
   }
 
-  public String getSmFullName()
+  public boolean getNeedsRepair()
   {
-    String answer = sm.toString();
-    if (smNotBroken != SmNotBroken.Null) { answer += "." + smNotBroken.toString(); }
-    return answer;
+    return needsRepair;
   }
 
-  public Sm getSm()
+  public boolean isNeedsRepair()
   {
-    return sm;
-  }
-
-  public SmNotBroken getSmNotBroken()
-  {
-    return smNotBroken;
-  }
-
-  public boolean breakDown()
-  {
-    boolean wasEventProcessed = false;
-    
-    Sm aSm = sm;
-    switch (aSm)
-    {
-      case notBroken:
-        exitSm();
-        setSm(Sm.broken);
-        wasEventProcessed = true;
-        break;
-      default:
-        // Other states do respond to this event
-    }
-
-    return wasEventProcessed;
-  }
-
-  private boolean enterNotBroken()
-  {
-    boolean wasEventProcessed = false;
-    
-    SmNotBroken aSmNotBroken = smNotBroken;
-    switch (aSmNotBroken)
-    {
-      case Null:
-        setSmNotBroken(SmNotBroken.day000);
-        wasEventProcessed = true;
-        break;
-      default:
-        // Other states do respond to this event
-    }
-
-    return wasEventProcessed;
-  }
-
-  private boolean exitNotBroken()
-  {
-    boolean wasEventProcessed = false;
-    
-    SmNotBroken aSmNotBroken = smNotBroken;
-    switch (aSmNotBroken)
-    {
-      case day000:
-        setSmNotBroken(SmNotBroken.Null);
-        wasEventProcessed = true;
-        break;
-      case day001:
-        setSmNotBroken(SmNotBroken.Null);
-        wasEventProcessed = true;
-        break;
-      case day010:
-        setSmNotBroken(SmNotBroken.Null);
-        wasEventProcessed = true;
-        break;
-      case day011:
-        setSmNotBroken(SmNotBroken.Null);
-        wasEventProcessed = true;
-        break;
-      case day100:
-        setSmNotBroken(SmNotBroken.Null);
-        wasEventProcessed = true;
-        break;
-      case day101:
-        setSmNotBroken(SmNotBroken.Null);
-        wasEventProcessed = true;
-        break;
-      case day110:
-        setSmNotBroken(SmNotBroken.Null);
-        wasEventProcessed = true;
-        break;
-      case day111:
-        setSmNotBroken(SmNotBroken.Null);
-        wasEventProcessed = true;
-        break;
-      default:
-        // Other states do respond to this event
-    }
-
-    return wasEventProcessed;
-  }
-
-  public boolean assignDay0()
-  {
-    boolean wasEventProcessed = false;
-    
-    SmNotBroken aSmNotBroken = smNotBroken;
-    switch (aSmNotBroken)
-    {
-      case day000:
-        setSmNotBroken(SmNotBroken.day100);
-        wasEventProcessed = true;
-        break;
-      case day001:
-        setSmNotBroken(SmNotBroken.day101);
-        wasEventProcessed = true;
-        break;
-      case day010:
-        setSmNotBroken(SmNotBroken.day110);
-        wasEventProcessed = true;
-        break;
-      case day011:
-        setSmNotBroken(SmNotBroken.day111);
-        wasEventProcessed = true;
-        break;
-      default:
-        // Other states do respond to this event
-    }
-
-    return wasEventProcessed;
-  }
-
-  public boolean assignDay1()
-  {
-    boolean wasEventProcessed = false;
-    
-    SmNotBroken aSmNotBroken = smNotBroken;
-    switch (aSmNotBroken)
-    {
-      case day000:
-        setSmNotBroken(SmNotBroken.day010);
-        wasEventProcessed = true;
-        break;
-      case day001:
-        setSmNotBroken(SmNotBroken.day011);
-        wasEventProcessed = true;
-        break;
-      case day100:
-        setSmNotBroken(SmNotBroken.day110);
-        wasEventProcessed = true;
-        break;
-      case day101:
-        setSmNotBroken(SmNotBroken.day111);
-        wasEventProcessed = true;
-        break;
-      default:
-        // Other states do respond to this event
-    }
-
-    return wasEventProcessed;
-  }
-
-  public boolean assignDay2()
-  {
-    boolean wasEventProcessed = false;
-    
-    SmNotBroken aSmNotBroken = smNotBroken;
-    switch (aSmNotBroken)
-    {
-      case day000:
-        setSmNotBroken(SmNotBroken.day001);
-        wasEventProcessed = true;
-        break;
-      case day010:
-        setSmNotBroken(SmNotBroken.day011);
-        wasEventProcessed = true;
-        break;
-      case day100:
-        setSmNotBroken(SmNotBroken.day101);
-        wasEventProcessed = true;
-        break;
-      case day110:
-        setSmNotBroken(SmNotBroken.day111);
-        wasEventProcessed = true;
-        break;
-      default:
-        // Other states do respond to this event
-    }
-
-    return wasEventProcessed;
-  }
-
-  private void exitSm()
-  {
-    switch(sm)
-    {
-      case notBroken:
-        exitNotBroken();
-        break;
-    }
-  }
-
-  private void setSm(Sm aSm)
-  {
-    sm = aSm;
-
-    // entry actions and do activities
-    switch(sm)
-    {
-      case notBroken:
-        if (smNotBroken == SmNotBroken.Null) { setSmNotBroken(SmNotBroken.day000); }
-        break;
-    }
-  }
-
-  private void setSmNotBroken(SmNotBroken aSmNotBroken)
-  {
-    smNotBroken = aSmNotBroken;
-    if (sm != Sm.notBroken && aSmNotBroken != SmNotBroken.Null) { setSm(Sm.notBroken); }
-  }
-
-  public Route getRoute()
-  {
-    return route;
+    return needsRepair;
   }
 
   public BTMS getBTMS()
@@ -341,28 +106,34 @@ public class Bus
     return bTMS;
   }
 
-  public Driver getDriver()
+  public RouteWorkShift getRouteWorkShift(int index)
   {
-    return driver;
+    RouteWorkShift aRouteWorkShift = routeWorkShifts.get(index);
+    return aRouteWorkShift;
   }
 
-  public boolean setRoute(Route aRoute)
+  public List<RouteWorkShift> getRouteWorkShifts()
   {
-    boolean wasSet = false;
-    if (aRoute == null)
-    {
-      return wasSet;
-    }
+    List<RouteWorkShift> newRouteWorkShifts = Collections.unmodifiableList(routeWorkShifts);
+    return newRouteWorkShifts;
+  }
 
-    Route existingRoute = route;
-    route = aRoute;
-    if (existingRoute != null && !existingRoute.equals(aRoute))
-    {
-      existingRoute.removeBus(this);
-    }
-    route.addBus(this);
-    wasSet = true;
-    return wasSet;
+  public int numberOfRouteWorkShifts()
+  {
+    int number = routeWorkShifts.size();
+    return number;
+  }
+
+  public boolean hasRouteWorkShifts()
+  {
+    boolean has = routeWorkShifts.size() > 0;
+    return has;
+  }
+
+  public int indexOfRouteWorkShift(RouteWorkShift aRouteWorkShift)
+  {
+    int index = routeWorkShifts.indexOf(aRouteWorkShift);
+    return index;
   }
 
   public boolean setBTMS(BTMS aBTMS)
@@ -384,20 +155,99 @@ public class Bus
     return wasSet;
   }
 
+  public static int minimumNumberOfRouteWorkShifts()
+  {
+    return 0;
+  }
+
+  public boolean addRouteWorkShift(RouteWorkShift aRouteWorkShift)
+  {
+    boolean wasAdded = false;
+    if (routeWorkShifts.contains(aRouteWorkShift)) { return false; }
+    routeWorkShifts.add(aRouteWorkShift);
+    if (aRouteWorkShift.indexOfBus(this) != -1)
+    {
+      wasAdded = true;
+    }
+    else
+    {
+      wasAdded = aRouteWorkShift.addBus(this);
+      if (!wasAdded)
+      {
+        routeWorkShifts.remove(aRouteWorkShift);
+      }
+    }
+    return wasAdded;
+  }
+
+  public boolean removeRouteWorkShift(RouteWorkShift aRouteWorkShift)
+  {
+    boolean wasRemoved = false;
+    if (!routeWorkShifts.contains(aRouteWorkShift))
+    {
+      return wasRemoved;
+    }
+
+    int oldIndex = routeWorkShifts.indexOf(aRouteWorkShift);
+    routeWorkShifts.remove(oldIndex);
+    if (aRouteWorkShift.indexOfBus(this) == -1)
+    {
+      wasRemoved = true;
+    }
+    else
+    {
+      wasRemoved = aRouteWorkShift.removeBus(this);
+      if (!wasRemoved)
+      {
+        routeWorkShifts.add(oldIndex,aRouteWorkShift);
+      }
+    }
+    return wasRemoved;
+  }
+
+  public boolean addRouteWorkShiftAt(RouteWorkShift aRouteWorkShift, int index)
+  {  
+    boolean wasAdded = false;
+    if(addRouteWorkShift(aRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfRouteWorkShifts()) { index = numberOfRouteWorkShifts() - 1; }
+      routeWorkShifts.remove(aRouteWorkShift);
+      routeWorkShifts.add(index, aRouteWorkShift);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveRouteWorkShiftAt(RouteWorkShift aRouteWorkShift, int index)
+  {
+    boolean wasAdded = false;
+    if(routeWorkShifts.contains(aRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfRouteWorkShifts()) { index = numberOfRouteWorkShifts() - 1; }
+      routeWorkShifts.remove(aRouteWorkShift);
+      routeWorkShifts.add(index, aRouteWorkShift);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addRouteWorkShiftAt(aRouteWorkShift, index);
+    }
+    return wasAdded;
+  }
+
   public void delete()
   {
     bussByLicensePlate.remove(getLicensePlate());
-    Route placeholderRoute = route;
-    this.route = null;
-    placeholderRoute.removeBus(this);
     BTMS placeholderBTMS = bTMS;
     this.bTMS = null;
     placeholderBTMS.removeBus(this);
-    Driver existingDriver = driver;
-    driver = null;
-    if (existingDriver != null)
+    ArrayList<RouteWorkShift> copyOfRouteWorkShifts = new ArrayList<RouteWorkShift>(routeWorkShifts);
+    routeWorkShifts.clear();
+    for(RouteWorkShift aRouteWorkShift : copyOfRouteWorkShifts)
     {
-      existingDriver.delete();
+      aRouteWorkShift.removeBus(this);
     }
   }
 
@@ -406,10 +256,9 @@ public class Bus
   {
 	  String outputString = "";
     return super.toString() + "["+
-            "licensePlate" + ":" + getLicensePlate()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "route = "+(getRoute()!=null?Integer.toHexString(System.identityHashCode(getRoute())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "bTMS = "+(getBTMS()!=null?Integer.toHexString(System.identityHashCode(getBTMS())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "driver = "+(getDriver()!=null?Integer.toHexString(System.identityHashCode(getDriver())):"null")
+            "licensePlate" + ":" + getLicensePlate()+ "," +
+            "needsRepair" + ":" + getNeedsRepair()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "bTMS = "+(getBTMS()!=null?Integer.toHexString(System.identityHashCode(getBTMS())):"null")
      + outputString;
   }
 }

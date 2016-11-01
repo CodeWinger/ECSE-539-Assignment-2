@@ -2,27 +2,20 @@
 /*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
-import java.sql.Date;
 import java.util.*;
 
-// line 3 "../../../../../model.ump"
-public class BTMS
+// line 32 "../../../../../model.ump"
+public abstract class RouteWorkShift
 {
-
-  //------------------------
-  // STATIC VARIABLES
-  //------------------------
-
-  private static BTMS theInstance = null;
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
 
-  //BTMS Attributes
-  private Date currentDate;
+  //RouteWorkShift Attributes
+  private int routeNumber;
 
-  //BTMS Associations
+  //RouteWorkShift Associations
   private List<Bus> buses;
   private List<Driver> drivers;
 
@@ -30,37 +23,24 @@ public class BTMS
   // CONSTRUCTOR
   //------------------------
 
-  private BTMS()
+  public RouteWorkShift(int aRouteNumber)
   {
-    currentDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+    routeNumber = aRouteNumber;
     buses = new ArrayList<Bus>();
     drivers = new ArrayList<Driver>();
-  }
-
-  public static BTMS getInstance()
-  {
-    if(theInstance == null)
-    {
-      theInstance = new BTMS();
-    }
-    return theInstance;
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public boolean setCurrentDate(Date aCurrentDate)
+  /**
+   * ShiftType{ Morning{} Afternoon{} Night{} }
+   * find way to make RouteWorkShift contain name attribute
+   */
+  public int getRouteNumber()
   {
-    boolean wasSet = false;
-    currentDate = aCurrentDate;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public Date getCurrentDate()
-  {
-    return currentDate;
+    return routeNumber;
   }
 
   public Bus getBus(int index)
@@ -99,10 +79,6 @@ public class BTMS
     return aDriver;
   }
 
-  /**
-   * 1 <@>- * RouteWorkShift;
-   * 1 <@>- * Shift;
-   */
   public List<Driver> getDrivers()
   {
     List<Driver> newDrivers = Collections.unmodifiableList(drivers);
@@ -132,37 +108,50 @@ public class BTMS
     return 0;
   }
 
-  public Bus addBus(String aLicensePlate)
-  {
-    return new Bus(aLicensePlate, this);
-  }
-
   public boolean addBus(Bus aBus)
   {
     boolean wasAdded = false;
     if (buses.contains(aBus)) { return false; }
-    BTMS existingBTMS = aBus.getBTMS();
-    boolean isNewBTMS = existingBTMS != null && !this.equals(existingBTMS);
-    if (isNewBTMS)
+    if (buses.contains(aBus)) { return false; }
+    if (buses.contains(aBus)) { return false; }
+    if (buses.contains(aBus)) { return false; }
+    buses.add(aBus);
+    if (aBus.indexOfRouteWorkShift(this) != -1)
     {
-      aBus.setBTMS(this);
+      wasAdded = true;
     }
     else
     {
-      buses.add(aBus);
+      wasAdded = aBus.addRouteWorkShift(this);
+      if (!wasAdded)
+      {
+        buses.remove(aBus);
+      }
     }
-    wasAdded = true;
     return wasAdded;
   }
 
   public boolean removeBus(Bus aBus)
   {
     boolean wasRemoved = false;
-    //Unable to remove aBus, as it must always have a bTMS
-    if (!this.equals(aBus.getBTMS()))
+    if (!buses.contains(aBus))
     {
-      buses.remove(aBus);
+      return wasRemoved;
+    }
+
+    int oldIndex = buses.indexOf(aBus);
+    buses.remove(oldIndex);
+    if (aBus.indexOfRouteWorkShift(this) == -1)
+    {
       wasRemoved = true;
+    }
+    else
+    {
+      wasRemoved = aBus.removeRouteWorkShift(this);
+      if (!wasRemoved)
+      {
+        buses.add(oldIndex,aBus);
+      }
     }
     return wasRemoved;
   }
@@ -204,37 +193,50 @@ public class BTMS
     return 0;
   }
 
-  public Driver addDriver(String aName)
-  {
-    return new Driver(aName, this);
-  }
-
   public boolean addDriver(Driver aDriver)
   {
     boolean wasAdded = false;
     if (drivers.contains(aDriver)) { return false; }
-    BTMS existingBTMS = aDriver.getBTMS();
-    boolean isNewBTMS = existingBTMS != null && !this.equals(existingBTMS);
-    if (isNewBTMS)
+    if (drivers.contains(aDriver)) { return false; }
+    if (drivers.contains(aDriver)) { return false; }
+    if (drivers.contains(aDriver)) { return false; }
+    drivers.add(aDriver);
+    if (aDriver.indexOfRouteWorkShift(this) != -1)
     {
-      aDriver.setBTMS(this);
+      wasAdded = true;
     }
     else
     {
-      drivers.add(aDriver);
+      wasAdded = aDriver.addRouteWorkShift(this);
+      if (!wasAdded)
+      {
+        drivers.remove(aDriver);
+      }
     }
-    wasAdded = true;
     return wasAdded;
   }
 
   public boolean removeDriver(Driver aDriver)
   {
     boolean wasRemoved = false;
-    //Unable to remove aDriver, as it must always have a bTMS
-    if (!this.equals(aDriver.getBTMS()))
+    if (!drivers.contains(aDriver))
     {
-      drivers.remove(aDriver);
+      return wasRemoved;
+    }
+
+    int oldIndex = drivers.indexOf(aDriver);
+    drivers.remove(oldIndex);
+    if (aDriver.indexOfRouteWorkShift(this) == -1)
+    {
       wasRemoved = true;
+    }
+    else
+    {
+      wasRemoved = aDriver.removeRouteWorkShift(this);
+      if (!wasRemoved)
+      {
+        drivers.add(oldIndex,aDriver);
+      }
     }
     return wasRemoved;
   }
@@ -273,30 +275,26 @@ public class BTMS
 
   public void delete()
   {
-    while (buses.size() > 0)
+    ArrayList<Bus> copyOfBuses = new ArrayList<Bus>(buses);
+    buses.clear();
+    for(Bus aBus : copyOfBuses)
     {
-      Bus aBus = buses.get(buses.size() - 1);
-      aBus.delete();
-      buses.remove(aBus);
+      aBus.removeRouteWorkShift(this);
     }
-    
-      
-    while (drivers.size() > 0)
+    ArrayList<Driver> copyOfDrivers = new ArrayList<Driver>(drivers);
+    drivers.clear();
+    for(Driver aDriver : copyOfDrivers)
     {
-      Driver aDriver = drivers.get(drivers.size() - 1);
-      aDriver.delete();
-      drivers.remove(aDriver);
+      aDriver.removeRouteWorkShift(this);
     }
-    
-      
   }
 
 
   public String toString()
   {
 	  String outputString = "";
-    return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "currentDate" + "=" + (getCurrentDate() != null ? !getCurrentDate().equals(this)  ? getCurrentDate().toString().replaceAll("  ","    ") : "this" : "null")
+    return super.toString() + "["+
+            "routeNumber" + ":" + getRouteNumber()+ "]"
      + outputString;
   }
 }

@@ -3,7 +3,7 @@ namespace ca.mcgill.ecse539.btms.model;
 class BTMS{
  singleton;
  1 <@>- *  Bus;
- 1 <@>- * Route;
+ //1 <@>- * RouteWorkShift;
  //1 <@>- * Shift;
  1 <@>- * Driver; 
  
@@ -13,52 +13,50 @@ class BTMS{
 }
 
 class Bus
-{
-  * -- 1 Route;
+{ 
+  //1 -- * RouteShift;
   
   unique String licensePlate;
-  Boolean needsRepair = false;
+  Boolean needsRepair = false; 	
 }
 
-class Route
-{
-	immutable Integer routeNumber;
-	//not sure if we should add association to shift here...
-	// * -- 1..3 Shift
-}
+class Driver{
+   //1 -- * RouteShift;
 
-associationClass Driver{
-  1 Bus;
-  1..3 Shift ;
-  
-   immutable name;
+   immutable String name;
    autounique id;
    Boolean isSick = false;
 }
 
-class Shift
-{
+
+class RouteWorkShift {
 	abstract;
+	* -- * Bus;
+	* -- * Driver;
+	
+	//ShiftType{ Morning{} Afternoon{} Night{} }
+	//find way to make RouteWorkShift contain name attribute
+	immutable Integer routeNumber;
+	//uniqueDate date;
 }
 
-//find way to make Shift contain name attribute
-class Morning
-{
-	singleton;
-	isA Shift;
-	immutable name = "Morning";
+class MorningRouteWorkShift{
+	isA RouteWorkShift;
+	
+	unique Date workDate;
+	immutable shiftName = "Morning";
 }
 
-class Afternoon
-{
-	singleton;
-	isA Shift;
-	immutable name = "Afternoon";
+class AfternoonRouteWorkShift{
+	isA RouteWorkShift;
+	
+	unique Date workDate;
+	immutable shiftName = "Afternoon";
 }
 
-class Night
-{
-	singleton;
-	isA Shift;
-	immutable name = "Night";
+class NightRouteWorkShift{
+	isA RouteWorkShift;
+	
+	unique Date workDate;
+	immutable shiftName = "Night";
 }
