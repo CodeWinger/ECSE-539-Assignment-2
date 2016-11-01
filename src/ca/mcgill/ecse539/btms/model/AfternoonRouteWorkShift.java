@@ -5,7 +5,7 @@ package ca.mcgill.ecse539.btms.model;
 import java.sql.Date;
 import java.util.*;
 
-// line 50 "../../../../../model.ump"
+// line 51 "../../../../../model.ump"
 public class AfternoonRouteWorkShift extends RouteWorkShift
 {
 
@@ -23,17 +23,25 @@ public class AfternoonRouteWorkShift extends RouteWorkShift
   private Date workDate;
   private String shiftName;
 
+  //AfternoonRouteWorkShift Associations
+  private BTMS bTMS;
+
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public AfternoonRouteWorkShift(int aRouteNumber, Date aWorkDate)
+  public AfternoonRouteWorkShift(int aRouteNumber, Date aWorkDate, BTMS aBTMS)
   {
     super(aRouteNumber);
     shiftName = "Afternoon";
     if (!setWorkDate(aWorkDate))
     {
       throw new RuntimeException("Cannot create due to duplicate workDate");
+    }
+    boolean didAddBTMS = setBTMS(aBTMS);
+    if (!didAddBTMS)
+    {
+      throw new RuntimeException("Unable to create afternoonRouteWorkShift due to bTMS");
     }
   }
 
@@ -77,9 +85,36 @@ public class AfternoonRouteWorkShift extends RouteWorkShift
     return shiftName;
   }
 
+  public BTMS getBTMS()
+  {
+    return bTMS;
+  }
+
+  public boolean setBTMS(BTMS aBTMS)
+  {
+    boolean wasSet = false;
+    if (aBTMS == null)
+    {
+      return wasSet;
+    }
+
+    BTMS existingBTMS = bTMS;
+    bTMS = aBTMS;
+    if (existingBTMS != null && !existingBTMS.equals(aBTMS))
+    {
+      existingBTMS.removeAfternoonRouteWorkShift(this);
+    }
+    bTMS.addAfternoonRouteWorkShift(this);
+    wasSet = true;
+    return wasSet;
+  }
+
   public void delete()
   {
     afternoonrouteworkshiftsByWorkDate.remove(getWorkDate());
+    BTMS placeholderBTMS = bTMS;
+    this.bTMS = null;
+    placeholderBTMS.removeAfternoonRouteWorkShift(this);
     super.delete();
   }
 
@@ -89,7 +124,8 @@ public class AfternoonRouteWorkShift extends RouteWorkShift
 	  String outputString = "";
     return super.toString() + "["+
             "shiftName" + ":" + getShiftName()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "workDate" + "=" + (getWorkDate() != null ? !getWorkDate().equals(this)  ? getWorkDate().toString().replaceAll("  ","    ") : "this" : "null")
+            "  " + "workDate" + "=" + (getWorkDate() != null ? !getWorkDate().equals(this)  ? getWorkDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "bTMS = "+(getBTMS()!=null?Integer.toHexString(System.identityHashCode(getBTMS())):"null")
      + outputString;
   }
 }

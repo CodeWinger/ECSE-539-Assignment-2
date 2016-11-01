@@ -2,10 +2,11 @@ namespace ca.mcgill.ecse539.btms.model;
 
 class BTMS{
  singleton;
- 1 <@>- *  Bus;
- //1 <@>- * RouteWorkShift;
- //1 <@>- * Shift;
- 1 <@>- * Driver; 
+1 <@>- *  Bus;
+1 <@>- * MorningRouteWorkShift;
+1 <@>- * AfternoonRouteWorkShift;
+1 <@>- * NightRouteWorkShift;
+1 <@>- * Driver; 
  
  Date currentDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
  //Date threeDaysFromCurrentDate = {getCurrentDate() + };

@@ -4,7 +4,7 @@
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 15 "../../../../../model.ump"
+// line 16 "../../../../../model.ump"
 public class Bus
 {
 
