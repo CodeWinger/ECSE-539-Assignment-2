@@ -1,21 +1,34 @@
 package ca.mcgill.ecse539.btms.view;
 
 import java.awt.Color;
+import java.awt.List;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Properties;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.swing.table.DefaultTableModel;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.SqlDateModel;
+
+import ca.mcgill.ecse539.btms.model.BTMS;
+import ca.mcgill.ecse539.btms.model.Bus;
+import ca.mcgill.ecse539.btms.model.Driver;
+import ca.mcgill.ecse539.btms.model.Shift;
 
 public class BtmsPage extends JFrame {
 
@@ -49,7 +62,12 @@ public class BtmsPage extends JFrame {
 	private JDatePickerImpl assignmentDatePicker;
 	private JLabel assignmentDateLabel;
 	private JButton assignButton;
-	
+	// shift assignment
+	private JComboBox<String> shiftList;
+	private JLabel shiftLabel;
+
+	private JTable outputTable;
+	private DefaultTableModel dtm;
 	// temporary elements
 	private JLabel hint1;
 	private JLabel hint2;
@@ -61,10 +79,12 @@ public class BtmsPage extends JFrame {
 	private Integer selectedRoute = -1;
 	//private HashMap<Integer, Route> routes;
 	private Integer selectedDriver = -1;
+	//private Integer UniqueDriverID = 1;
 	//private HashMap<Integer, Driver> drivers;
 	private Integer selectedRepairBus= -1;
 	//private HashMap<Integer, Bus> drivers;
-	
+	private Integer selectedShift= -1;
+	public BTMS btms = BTMS.getInstance();
 	/** Creates new form EventRegistrationPage */
 	public BtmsPage() {
 		initComponents();
@@ -127,6 +147,16 @@ public class BtmsPage extends JFrame {
 		        selectedRoute = cb.getSelectedIndex();
 			}
 		});
+		
+		shiftLabel = new JLabel();
+		String[] shift = {"Morning", "Afternoon", "Night" };
+		shiftList = new JComboBox<String>(shift);
+		shiftList.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		        JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+		        selectedShift = cb.getSelectedIndex();
+			}
+		});
 		routeLabel = new JLabel();
 		
 		SqlDateModel model = new SqlDateModel();
@@ -187,6 +217,7 @@ public class BtmsPage extends JFrame {
 		});
 		
 		busLabel.setText("Select Bus:");
+		shiftLabel.setText("Select Shift:");
 		routeLabel.setText("Select Route:");
 		assignmentDateLabel.setText("Date:");
 		assignButton.setText("Assign");
@@ -196,8 +227,23 @@ public class BtmsPage extends JFrame {
 			}
 		});
 		
+		
+
 		hint1.setText("Hint: add scheduling of drivers here...");
 		hint2.setText("Hint: add daily overview here...");
+		
+		//Added output table 
+		outputTable = new JTable();
+		dtm = new DefaultTableModel(0, 0);
+		// add header of the table
+		String header[] = new String[] { "Driver", "Date", "Shift", "Bus", "Route"};
+
+		// add header in table model     
+		 dtm.setColumnIdentifiers(header);
+		 dtm.addRow(new Object[] { "Driver", "Date", "Shift", "Bus", "Route"});
+		//set model into the table object
+		 outputTable.setModel(dtm);
+
 		
 		// horizontal line elements
 		JSeparator horizontalLineTop = new JSeparator();
@@ -219,17 +265,20 @@ public class BtmsPage extends JFrame {
 				.addComponent(horizontalLineBottom)
 				.addComponent(hint1)
 				.addComponent(hint2)
+				.addComponent(outputTable)
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
 								.addComponent(driverNameLabel)
 								.addComponent(driverLabel)
-								.addComponent(busLabel))
+								.addComponent(busLabel)
+						        )
 						.addGroup(layout.createParallelGroup()
 								.addComponent(driverNameTextField, 200, 200, 400)
 								.addComponent(addDriverButton)
 								.addComponent(driverList)
 								.addComponent(sickButton)
-								.addComponent(busList))
+								.addComponent(busList)
+						        )
 						.addGroup(layout.createParallelGroup()
 								.addComponent(routeNumberLabel)
 								.addComponent(busRepairLabel)
@@ -242,10 +291,12 @@ public class BtmsPage extends JFrame {
 								.addComponent(routeList))
 						.addGroup(layout.createParallelGroup()
 								.addComponent(busLicencePlateLabel)
-								.addComponent(assignmentDateLabel))
+								.addComponent(assignmentDateLabel)
+								.addComponent(shiftLabel))
 						.addGroup(layout.createParallelGroup()
 								.addComponent(busLicencePlateTextField, 200, 200, 400)
 								.addComponent(addBusButton)
+								.addComponent(shiftList)
 								.addComponent(assignmentDatePicker)
 								.addComponent(assignButton)))
 				);
@@ -277,7 +328,9 @@ public class BtmsPage extends JFrame {
 						.addComponent(driverLabel)
 						.addComponent(driverList)
 						.addComponent(busRepairLabel)
-						.addComponent(busRepairList))
+						.addComponent(busRepairList)
+						.addComponent(shiftLabel)
+						.addComponent(shiftList))
 				.addGroup(layout.createParallelGroup()
 						.addComponent(sickButton)
 						.addComponent(repairButton))
@@ -291,6 +344,7 @@ public class BtmsPage extends JFrame {
 						.addComponent(assignmentDateLabel)
 						.addComponent(assignmentDatePicker))
 				.addComponent(assignButton)
+				.addGroup(layout.createParallelGroup())
 				.addGroup(layout.createParallelGroup()
 						.addComponent(horizontalLineMiddle2))
 				.addGroup(layout.createParallelGroup()
@@ -299,9 +353,12 @@ public class BtmsPage extends JFrame {
 						.addComponent(horizontalLineBottom))
 				.addGroup(layout.createParallelGroup()
 						.addComponent(hint2))
+				.addGroup(layout.createParallelGroup()
+						.addComponent(outputTable))
 				);
 		
 		pack();
+		
 	}
 
 	private void refreshData() {
@@ -311,15 +368,22 @@ public class BtmsPage extends JFrame {
 		if (error == null || error.length() == 0) {
 			// TODO
 		}
-
 		// this is needed because the size of the window changes depending on whether an error message is shown or not
 		pack();
 	}
 
 	private void addDriverButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// call the controller
-		error = null;
+		error = "";
 		// TODO
+		if(((DefaultComboBoxModel) driverList.getModel()).getIndexOf(driverNameTextField.getText()) == -1)
+		{
+          driverList.addItem(driverNameTextField.getText()); 
+		}
+		else
+		{
+			error += " Driver already in the Database!";
+		}
 		// update visuals
 		refreshData();
 	}
@@ -328,19 +392,27 @@ public class BtmsPage extends JFrame {
 		// call the controller
 		error = "";
 		if (selectedDriver < 0)
-			error = error + "Driver needs to be selected to toggle sick status! ";
+			error += error + " Driver needs to be selected to toggle sick status! ";
 		error = error.trim();
 		if (error.length() == 0) {
 			// call the controller
-			// TOOD
+			// TODO
 		}
 		refreshData();
 	}
 
 	private void addRouteButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// call the controller
-		error = null;
+		error = "";
 		// TODO
+		if(((DefaultComboBoxModel) routeList.getModel()).getIndexOf(routeNumberTextField.getText()) == -1)
+		{
+		  routeList.addItem(routeNumberTextField.getText());
+		}
+		else
+		{
+			error += "Route already in the Database! ";
+		}
 		// update visuals
 		refreshData();
 	}
@@ -349,6 +421,15 @@ public class BtmsPage extends JFrame {
 		// call the controller
 		error = null;
 		// TODO
+		if(((DefaultComboBoxModel) busList.getModel()).getIndexOf(busLicencePlateTextField.getText()) == -1)
+		{
+			busList.addItem(busLicencePlateTextField.getText());
+			busRepairList.addItem(busLicencePlateTextField.getText());
+		}
+		else
+		{
+			error = "Bus already in the Database! ";
+		}
 		// update visuals
 		refreshData();
 	}
@@ -368,6 +449,13 @@ public class BtmsPage extends JFrame {
 
 	private void assignButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		error = "";
+		Date selectedDate = (Date) assignmentDatePicker.getModel().getValue();
+		Date todaysDate = new Date();
+		long diff = selectedDate.getTime() - todaysDate.getTime();
+        if((diff/ 1000 / 60 / 60 / 24) > 2)
+        {
+        	error += "Date more than 3 days away! ";
+        }
 		if (selectedBus < 0)
 			error = error + "Bus needs to be selected for assignment! ";
 		if (selectedRoute < 0)
@@ -375,9 +463,15 @@ public class BtmsPage extends JFrame {
 		error = error.trim();
 		if (error.length() == 0) {
 			// call the controller
+			//JUST A TEST
+			for (int count = 1; count <= 30; count++) {
+			       dtm.addRow(new Object[] { "data", "data", "data",
+			                "data", "data"});
+			} 
 			// TOOD
 		}
 		// update visuals
+		
 		refreshData();			
 	}
 
