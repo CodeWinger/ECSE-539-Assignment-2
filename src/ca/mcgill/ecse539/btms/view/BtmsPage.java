@@ -1,5 +1,6 @@
 package ca.mcgill.ecse539.btms.view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.List;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
@@ -67,6 +69,7 @@ public class BtmsPage extends JFrame {
 	private JLabel shiftLabel;
 
 	private JTable outputTable;
+	private JPanel panel_1 = new JPanel();
 	private DefaultTableModel dtm;
 	// temporary elements
 	private JLabel hint1;
@@ -238,12 +241,17 @@ public class BtmsPage extends JFrame {
 		// add header of the table
 		String header[] = new String[] { "Driver", "Date", "Shift", "Bus", "Route"};
 
+		
+		JScrollPane js=new JScrollPane(outputTable);
+		js.setVisible(true);
+		add(js);
 		// add header in table model     
 		 dtm.setColumnIdentifiers(header);
 		 dtm.addRow(new Object[] { "Driver", "Date", "Shift", "Bus", "Route"});
 		//set model into the table object
 		 outputTable.setModel(dtm);
-
+	     panel_1.setLayout(new BorderLayout());
+	     panel_1.add(js, BorderLayout.CENTER);
 		
 		// horizontal line elements
 		JSeparator horizontalLineTop = new JSeparator();
@@ -452,9 +460,14 @@ public class BtmsPage extends JFrame {
 		Date selectedDate = (Date) assignmentDatePicker.getModel().getValue();
 		Date todaysDate = new Date();
 		long diff = selectedDate.getTime() - todaysDate.getTime();
-        if((diff/ 1000 / 60 / 60 / 24) > 2)
+		error += diff;
+        if(((diff/ 1000 / 60 / 60 / 24) > 2) )
         {
         	error += "Date more than 3 days away! ";
+        }
+        else if(diff < 0)
+        {
+        	error += "Date cannot be before todays date! ";
         }
 		if (selectedBus < 0)
 			error = error + "Bus needs to be selected for assignment! ";
