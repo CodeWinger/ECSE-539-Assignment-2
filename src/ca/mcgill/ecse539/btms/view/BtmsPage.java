@@ -30,7 +30,7 @@ import org.jdatepicker.impl.SqlDateModel;
 import ca.mcgill.ecse539.btms.model.BTMS;
 import ca.mcgill.ecse539.btms.model.Bus;
 import ca.mcgill.ecse539.btms.model.Driver;
-import ca.mcgill.ecse539.btms.model.Shift;
+
 
 public class BtmsPage extends JFrame {
 
@@ -387,6 +387,7 @@ public class BtmsPage extends JFrame {
 		if(((DefaultComboBoxModel) driverList.getModel()).getIndexOf(driverNameTextField.getText()) == -1)
 		{
           driverList.addItem(driverNameTextField.getText()); 
+          btms.addDriver(driverNameTextField.getText());
 		}
 		else
 		{
@@ -404,6 +405,7 @@ public class BtmsPage extends JFrame {
 		error = error.trim();
 		if (error.length() == 0) {
 			// call the controller
+			driverList.removeItemAt(selectedDriver);
 			// TODO
 		}
 		refreshData();
@@ -433,6 +435,7 @@ public class BtmsPage extends JFrame {
 		{
 			busList.addItem(busLicencePlateTextField.getText());
 			busRepairList.addItem(busLicencePlateTextField.getText());
+			btms.addBus(busLicencePlateTextField.getText());
 		}
 		else
 		{
@@ -450,6 +453,7 @@ public class BtmsPage extends JFrame {
 		error = error.trim();
 		if (error.length() == 0) {
 			// call the controller
+			busList.removeItemAt(selectedRepairBus);
 			// TOOD
 		}
 		refreshData();

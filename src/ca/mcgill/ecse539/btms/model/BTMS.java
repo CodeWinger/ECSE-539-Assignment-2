@@ -1,5 +1,5 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
+/*This code was generated using the UMPLE 1.24.0-dab6b48 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
 import java.sql.Date;
@@ -588,7 +588,6 @@ public class BTMS
       buses.remove(aBus);
     }
     
-      
     while (morningRouteWorkShifts.size() > 0)
     {
       MorningRouteWorkShift aMorningRouteWorkShift = morningRouteWorkShifts.get(morningRouteWorkShifts.size() - 1);
@@ -596,7 +595,6 @@ public class BTMS
       morningRouteWorkShifts.remove(aMorningRouteWorkShift);
     }
     
-      
     while (afternoonRouteWorkShifts.size() > 0)
     {
       AfternoonRouteWorkShift aAfternoonRouteWorkShift = afternoonRouteWorkShifts.get(afternoonRouteWorkShifts.size() - 1);
@@ -604,7 +602,6 @@ public class BTMS
       afternoonRouteWorkShifts.remove(aAfternoonRouteWorkShift);
     }
     
-      
     while (nightRouteWorkShifts.size() > 0)
     {
       NightRouteWorkShift aNightRouteWorkShift = nightRouteWorkShifts.get(nightRouteWorkShifts.size() - 1);
@@ -612,7 +609,6 @@ public class BTMS
       nightRouteWorkShifts.remove(aNightRouteWorkShift);
     }
     
-      
     while (drivers.size() > 0)
     {
       Driver aDriver = drivers.get(drivers.size() - 1);
@@ -620,13 +616,12 @@ public class BTMS
       drivers.remove(aDriver);
     }
     
-      
   }
 
 
   public String toString()
   {
-	  String outputString = "";
+    String outputString = "";
     return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "currentDate" + "=" + (getCurrentDate() != null ? !getCurrentDate().equals(this)  ? getCurrentDate().toString().replaceAll("  ","    ") : "this" : "null")
      + outputString;
