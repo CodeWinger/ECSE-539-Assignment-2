@@ -478,6 +478,7 @@ public class BtmsPage extends JFrame {
 		if (selectedRoute < 0)
 			error = error + "Route needs to be selected for assignment!";
 		error = error.trim();
+		
 		if (error.length() == 0) {
 			// call the controller
 			//JUST A TEST
