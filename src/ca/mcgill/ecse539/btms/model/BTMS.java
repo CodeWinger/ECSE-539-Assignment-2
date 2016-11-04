@@ -1,5 +1,5 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.24.0-dab6b48 modeling language!*/
+/*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
 import java.sql.Date;
@@ -21,13 +21,19 @@ public class BTMS
 
   //BTMS Attributes
   private Date currentDate;
+  private Date threeDaysAhead;
 
   //BTMS Associations
   private List<Bus> buses;
+  private List<Route> routes;
+  private List<Driver> drivers;
   private List<MorningRouteWorkShift> morningRouteWorkShifts;
   private List<AfternoonRouteWorkShift> afternoonRouteWorkShifts;
   private List<NightRouteWorkShift> nightRouteWorkShifts;
-  private List<Driver> drivers;
+
+  //Helper Variables
+  private boolean canSetCurrentDate;
+  private boolean canSetThreeDaysAhead;
 
   //------------------------
   // CONSTRUCTOR
@@ -35,12 +41,20 @@ public class BTMS
 
   private BTMS()
   {
-    currentDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+	//this code was hand-written!
+	Calendar calendar = Calendar.getInstance();
+	setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
+	calendar.add(Calendar.DATE, 3);
+	setThreeDaysAhead(new java.sql.Date(calendar.getTime().getTime()));
+		
+    canSetCurrentDate = true;
+    canSetThreeDaysAhead = true;
     buses = new ArrayList<Bus>();
+    routes = new ArrayList<Route>();
+    drivers = new ArrayList<Driver>();
     morningRouteWorkShifts = new ArrayList<MorningRouteWorkShift>();
     afternoonRouteWorkShifts = new ArrayList<AfternoonRouteWorkShift>();
     nightRouteWorkShifts = new ArrayList<NightRouteWorkShift>();
-    drivers = new ArrayList<Driver>();
   }
 
   public static BTMS getInstance()
@@ -59,7 +73,19 @@ public class BTMS
   public boolean setCurrentDate(Date aCurrentDate)
   {
     boolean wasSet = false;
+    if (!canSetCurrentDate) { return false; }
+    canSetCurrentDate = false;
     currentDate = aCurrentDate;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public boolean setThreeDaysAhead(Date aThreeDaysAhead)
+  {
+    boolean wasSet = false;
+    if (!canSetThreeDaysAhead) { return false; }
+    canSetThreeDaysAhead = false;
+    threeDaysAhead = aThreeDaysAhead;
     wasSet = true;
     return wasSet;
   }
@@ -67,6 +93,11 @@ public class BTMS
   public Date getCurrentDate()
   {
     return currentDate;
+  }
+
+  public Date getThreeDaysAhead()
+  {
+    return threeDaysAhead;
   }
 
   public Bus getBus(int index)
@@ -96,6 +127,66 @@ public class BTMS
   public int indexOfBus(Bus aBus)
   {
     int index = buses.indexOf(aBus);
+    return index;
+  }
+
+  public Route getRoute(int index)
+  {
+    Route aRoute = routes.get(index);
+    return aRoute;
+  }
+
+  public List<Route> getRoutes()
+  {
+    List<Route> newRoutes = Collections.unmodifiableList(routes);
+    return newRoutes;
+  }
+
+  public int numberOfRoutes()
+  {
+    int number = routes.size();
+    return number;
+  }
+
+  public boolean hasRoutes()
+  {
+    boolean has = routes.size() > 0;
+    return has;
+  }
+
+  public int indexOfRoute(Route aRoute)
+  {
+    int index = routes.indexOf(aRoute);
+    return index;
+  }
+
+  public Driver getDriver(int index)
+  {
+    Driver aDriver = drivers.get(index);
+    return aDriver;
+  }
+
+  public List<Driver> getDrivers()
+  {
+    List<Driver> newDrivers = Collections.unmodifiableList(drivers);
+    return newDrivers;
+  }
+
+  public int numberOfDrivers()
+  {
+    int number = drivers.size();
+    return number;
+  }
+
+  public boolean hasDrivers()
+  {
+    boolean has = drivers.size() > 0;
+    return has;
+  }
+
+  public int indexOfDriver(Driver aDriver)
+  {
+    int index = drivers.indexOf(aDriver);
     return index;
   }
 
@@ -189,36 +280,6 @@ public class BTMS
     return index;
   }
 
-  public Driver getDriver(int index)
-  {
-    Driver aDriver = drivers.get(index);
-    return aDriver;
-  }
-
-  public List<Driver> getDrivers()
-  {
-    List<Driver> newDrivers = Collections.unmodifiableList(drivers);
-    return newDrivers;
-  }
-
-  public int numberOfDrivers()
-  {
-    int number = drivers.size();
-    return number;
-  }
-
-  public boolean hasDrivers()
-  {
-    boolean has = drivers.size() > 0;
-    return has;
-  }
-
-  public int indexOfDriver(Driver aDriver)
-  {
-    int index = drivers.indexOf(aDriver);
-    return index;
-  }
-
   public static int minimumNumberOfBuses()
   {
     return 0;
@@ -291,218 +352,74 @@ public class BTMS
     return wasAdded;
   }
 
-  public static int minimumNumberOfMorningRouteWorkShifts()
+  public static int minimumNumberOfRoutes()
   {
     return 0;
   }
 
-  public MorningRouteWorkShift addMorningRouteWorkShift(int aRouteNumber, Date aWorkDate)
+  public Route addRoute(int aRouteNumber)
   {
-    return new MorningRouteWorkShift(aRouteNumber, aWorkDate, this);
+    return new Route(aRouteNumber, this);
   }
 
-  public boolean addMorningRouteWorkShift(MorningRouteWorkShift aMorningRouteWorkShift)
+  public boolean addRoute(Route aRoute)
   {
     boolean wasAdded = false;
-    if (morningRouteWorkShifts.contains(aMorningRouteWorkShift)) { return false; }
-    BTMS existingBTMS = aMorningRouteWorkShift.getBTMS();
+    if (routes.contains(aRoute)) { return false; }
+    BTMS existingBTMS = aRoute.getBTMS();
     boolean isNewBTMS = existingBTMS != null && !this.equals(existingBTMS);
     if (isNewBTMS)
     {
-      aMorningRouteWorkShift.setBTMS(this);
+      aRoute.setBTMS(this);
     }
     else
     {
-      morningRouteWorkShifts.add(aMorningRouteWorkShift);
+      routes.add(aRoute);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeMorningRouteWorkShift(MorningRouteWorkShift aMorningRouteWorkShift)
+  public boolean removeRoute(Route aRoute)
   {
     boolean wasRemoved = false;
-    //Unable to remove aMorningRouteWorkShift, as it must always have a bTMS
-    if (!this.equals(aMorningRouteWorkShift.getBTMS()))
+    //Unable to remove aRoute, as it must always have a bTMS
+    if (!this.equals(aRoute.getBTMS()))
     {
-      morningRouteWorkShifts.remove(aMorningRouteWorkShift);
+      routes.remove(aRoute);
       wasRemoved = true;
     }
     return wasRemoved;
   }
 
-  public boolean addMorningRouteWorkShiftAt(MorningRouteWorkShift aMorningRouteWorkShift, int index)
+  public boolean addRouteAt(Route aRoute, int index)
   {  
     boolean wasAdded = false;
-    if(addMorningRouteWorkShift(aMorningRouteWorkShift))
+    if(addRoute(aRoute))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfMorningRouteWorkShifts()) { index = numberOfMorningRouteWorkShifts() - 1; }
-      morningRouteWorkShifts.remove(aMorningRouteWorkShift);
-      morningRouteWorkShifts.add(index, aMorningRouteWorkShift);
+      if(index > numberOfRoutes()) { index = numberOfRoutes() - 1; }
+      routes.remove(aRoute);
+      routes.add(index, aRoute);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveMorningRouteWorkShiftAt(MorningRouteWorkShift aMorningRouteWorkShift, int index)
+  public boolean addOrMoveRouteAt(Route aRoute, int index)
   {
     boolean wasAdded = false;
-    if(morningRouteWorkShifts.contains(aMorningRouteWorkShift))
+    if(routes.contains(aRoute))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfMorningRouteWorkShifts()) { index = numberOfMorningRouteWorkShifts() - 1; }
-      morningRouteWorkShifts.remove(aMorningRouteWorkShift);
-      morningRouteWorkShifts.add(index, aMorningRouteWorkShift);
+      if(index > numberOfRoutes()) { index = numberOfRoutes() - 1; }
+      routes.remove(aRoute);
+      routes.add(index, aRoute);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addMorningRouteWorkShiftAt(aMorningRouteWorkShift, index);
-    }
-    return wasAdded;
-  }
-
-  public static int minimumNumberOfAfternoonRouteWorkShifts()
-  {
-    return 0;
-  }
-
-  public AfternoonRouteWorkShift addAfternoonRouteWorkShift(int aRouteNumber, Date aWorkDate)
-  {
-    return new AfternoonRouteWorkShift(aRouteNumber, aWorkDate, this);
-  }
-
-  public boolean addAfternoonRouteWorkShift(AfternoonRouteWorkShift aAfternoonRouteWorkShift)
-  {
-    boolean wasAdded = false;
-    if (afternoonRouteWorkShifts.contains(aAfternoonRouteWorkShift)) { return false; }
-    BTMS existingBTMS = aAfternoonRouteWorkShift.getBTMS();
-    boolean isNewBTMS = existingBTMS != null && !this.equals(existingBTMS);
-    if (isNewBTMS)
-    {
-      aAfternoonRouteWorkShift.setBTMS(this);
-    }
-    else
-    {
-      afternoonRouteWorkShifts.add(aAfternoonRouteWorkShift);
-    }
-    wasAdded = true;
-    return wasAdded;
-  }
-
-  public boolean removeAfternoonRouteWorkShift(AfternoonRouteWorkShift aAfternoonRouteWorkShift)
-  {
-    boolean wasRemoved = false;
-    //Unable to remove aAfternoonRouteWorkShift, as it must always have a bTMS
-    if (!this.equals(aAfternoonRouteWorkShift.getBTMS()))
-    {
-      afternoonRouteWorkShifts.remove(aAfternoonRouteWorkShift);
-      wasRemoved = true;
-    }
-    return wasRemoved;
-  }
-
-  public boolean addAfternoonRouteWorkShiftAt(AfternoonRouteWorkShift aAfternoonRouteWorkShift, int index)
-  {  
-    boolean wasAdded = false;
-    if(addAfternoonRouteWorkShift(aAfternoonRouteWorkShift))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfAfternoonRouteWorkShifts()) { index = numberOfAfternoonRouteWorkShifts() - 1; }
-      afternoonRouteWorkShifts.remove(aAfternoonRouteWorkShift);
-      afternoonRouteWorkShifts.add(index, aAfternoonRouteWorkShift);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveAfternoonRouteWorkShiftAt(AfternoonRouteWorkShift aAfternoonRouteWorkShift, int index)
-  {
-    boolean wasAdded = false;
-    if(afternoonRouteWorkShifts.contains(aAfternoonRouteWorkShift))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfAfternoonRouteWorkShifts()) { index = numberOfAfternoonRouteWorkShifts() - 1; }
-      afternoonRouteWorkShifts.remove(aAfternoonRouteWorkShift);
-      afternoonRouteWorkShifts.add(index, aAfternoonRouteWorkShift);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addAfternoonRouteWorkShiftAt(aAfternoonRouteWorkShift, index);
-    }
-    return wasAdded;
-  }
-
-  public static int minimumNumberOfNightRouteWorkShifts()
-  {
-    return 0;
-  }
-
-  public NightRouteWorkShift addNightRouteWorkShift(int aRouteNumber, Date aWorkDate)
-  {
-    return new NightRouteWorkShift(aRouteNumber, aWorkDate, this);
-  }
-
-  public boolean addNightRouteWorkShift(NightRouteWorkShift aNightRouteWorkShift)
-  {
-    boolean wasAdded = false;
-    if (nightRouteWorkShifts.contains(aNightRouteWorkShift)) { return false; }
-    BTMS existingBTMS = aNightRouteWorkShift.getBTMS();
-    boolean isNewBTMS = existingBTMS != null && !this.equals(existingBTMS);
-    if (isNewBTMS)
-    {
-      aNightRouteWorkShift.setBTMS(this);
-    }
-    else
-    {
-      nightRouteWorkShifts.add(aNightRouteWorkShift);
-    }
-    wasAdded = true;
-    return wasAdded;
-  }
-
-  public boolean removeNightRouteWorkShift(NightRouteWorkShift aNightRouteWorkShift)
-  {
-    boolean wasRemoved = false;
-    //Unable to remove aNightRouteWorkShift, as it must always have a bTMS
-    if (!this.equals(aNightRouteWorkShift.getBTMS()))
-    {
-      nightRouteWorkShifts.remove(aNightRouteWorkShift);
-      wasRemoved = true;
-    }
-    return wasRemoved;
-  }
-
-  public boolean addNightRouteWorkShiftAt(NightRouteWorkShift aNightRouteWorkShift, int index)
-  {  
-    boolean wasAdded = false;
-    if(addNightRouteWorkShift(aNightRouteWorkShift))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfNightRouteWorkShifts()) { index = numberOfNightRouteWorkShifts() - 1; }
-      nightRouteWorkShifts.remove(aNightRouteWorkShift);
-      nightRouteWorkShifts.add(index, aNightRouteWorkShift);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveNightRouteWorkShiftAt(NightRouteWorkShift aNightRouteWorkShift, int index)
-  {
-    boolean wasAdded = false;
-    if(nightRouteWorkShifts.contains(aNightRouteWorkShift))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfNightRouteWorkShifts()) { index = numberOfNightRouteWorkShifts() - 1; }
-      nightRouteWorkShifts.remove(aNightRouteWorkShift);
-      nightRouteWorkShifts.add(index, aNightRouteWorkShift);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addNightRouteWorkShiftAt(aNightRouteWorkShift, index);
+      wasAdded = addRouteAt(aRoute, index);
     }
     return wasAdded;
   }
@@ -579,6 +496,228 @@ public class BTMS
     return wasAdded;
   }
 
+  public static int minimumNumberOfMorningRouteWorkShifts()
+  {
+    return 0;
+  }
+
+  public MorningRouteWorkShift addMorningRouteWorkShift(Route aRoute, Date aWorkDate)
+  {
+	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
+    return new MorningRouteWorkShift(aRoute, aWorkDate, this);
+  }
+
+  public boolean addMorningRouteWorkShift(MorningRouteWorkShift aMorningRouteWorkShift)
+  {
+    boolean wasAdded = false;
+    if (morningRouteWorkShifts.contains(aMorningRouteWorkShift)) { return false; }
+    BTMS existingBTMS = aMorningRouteWorkShift.getBTMS();
+    boolean isNewBTMS = existingBTMS != null && !this.equals(existingBTMS);
+    if (isNewBTMS)
+    {
+      aMorningRouteWorkShift.setBTMS(this);
+    }
+    else
+    {
+      morningRouteWorkShifts.add(aMorningRouteWorkShift);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeMorningRouteWorkShift(MorningRouteWorkShift aMorningRouteWorkShift)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aMorningRouteWorkShift, as it must always have a bTMS
+    if (!this.equals(aMorningRouteWorkShift.getBTMS()))
+    {
+      morningRouteWorkShifts.remove(aMorningRouteWorkShift);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+
+  public boolean addMorningRouteWorkShiftAt(MorningRouteWorkShift aMorningRouteWorkShift, int index)
+  {  
+    boolean wasAdded = false;
+    if(addMorningRouteWorkShift(aMorningRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfMorningRouteWorkShifts()) { index = numberOfMorningRouteWorkShifts() - 1; }
+      morningRouteWorkShifts.remove(aMorningRouteWorkShift);
+      morningRouteWorkShifts.add(index, aMorningRouteWorkShift);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveMorningRouteWorkShiftAt(MorningRouteWorkShift aMorningRouteWorkShift, int index)
+  {
+    boolean wasAdded = false;
+    if(morningRouteWorkShifts.contains(aMorningRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfMorningRouteWorkShifts()) { index = numberOfMorningRouteWorkShifts() - 1; }
+      morningRouteWorkShifts.remove(aMorningRouteWorkShift);
+      morningRouteWorkShifts.add(index, aMorningRouteWorkShift);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addMorningRouteWorkShiftAt(aMorningRouteWorkShift, index);
+    }
+    return wasAdded;
+  }
+
+  public static int minimumNumberOfAfternoonRouteWorkShifts()
+  {
+    return 0;
+  }
+
+  public AfternoonRouteWorkShift addAfternoonRouteWorkShift(Route aRoute, Date aWorkDate)
+  {
+	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
+    return new AfternoonRouteWorkShift(aRoute, aWorkDate, this);
+  }
+
+  public boolean addAfternoonRouteWorkShift(AfternoonRouteWorkShift aAfternoonRouteWorkShift)
+  {
+    boolean wasAdded = false;
+    if (afternoonRouteWorkShifts.contains(aAfternoonRouteWorkShift)) { return false; }
+    BTMS existingBTMS = aAfternoonRouteWorkShift.getBTMS();
+    boolean isNewBTMS = existingBTMS != null && !this.equals(existingBTMS);
+    if (isNewBTMS)
+    {
+      aAfternoonRouteWorkShift.setBTMS(this);
+    }
+    else
+    {
+      afternoonRouteWorkShifts.add(aAfternoonRouteWorkShift);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeAfternoonRouteWorkShift(AfternoonRouteWorkShift aAfternoonRouteWorkShift)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aAfternoonRouteWorkShift, as it must always have a bTMS
+    if (!this.equals(aAfternoonRouteWorkShift.getBTMS()))
+    {
+      afternoonRouteWorkShifts.remove(aAfternoonRouteWorkShift);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+
+  public boolean addAfternoonRouteWorkShiftAt(AfternoonRouteWorkShift aAfternoonRouteWorkShift, int index)
+  {  
+    boolean wasAdded = false;
+    if(addAfternoonRouteWorkShift(aAfternoonRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfAfternoonRouteWorkShifts()) { index = numberOfAfternoonRouteWorkShifts() - 1; }
+      afternoonRouteWorkShifts.remove(aAfternoonRouteWorkShift);
+      afternoonRouteWorkShifts.add(index, aAfternoonRouteWorkShift);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveAfternoonRouteWorkShiftAt(AfternoonRouteWorkShift aAfternoonRouteWorkShift, int index)
+  {
+    boolean wasAdded = false;
+    if(afternoonRouteWorkShifts.contains(aAfternoonRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfAfternoonRouteWorkShifts()) { index = numberOfAfternoonRouteWorkShifts() - 1; }
+      afternoonRouteWorkShifts.remove(aAfternoonRouteWorkShift);
+      afternoonRouteWorkShifts.add(index, aAfternoonRouteWorkShift);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addAfternoonRouteWorkShiftAt(aAfternoonRouteWorkShift, index);
+    }
+    return wasAdded;
+  }
+
+  public static int minimumNumberOfNightRouteWorkShifts()
+  {
+    return 0;
+  }
+
+  public NightRouteWorkShift addNightRouteWorkShift(Route aRoute, Date aWorkDate)
+  {
+	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
+    return new NightRouteWorkShift(aRoute, aWorkDate, this);
+  }
+
+  public boolean addNightRouteWorkShift(NightRouteWorkShift aNightRouteWorkShift)
+  {
+    boolean wasAdded = false;
+    if (nightRouteWorkShifts.contains(aNightRouteWorkShift)) { return false; }
+    BTMS existingBTMS = aNightRouteWorkShift.getBTMS();
+    boolean isNewBTMS = existingBTMS != null && !this.equals(existingBTMS);
+    if (isNewBTMS)
+    {
+      aNightRouteWorkShift.setBTMS(this);
+    }
+    else
+    {
+      nightRouteWorkShifts.add(aNightRouteWorkShift);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeNightRouteWorkShift(NightRouteWorkShift aNightRouteWorkShift)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aNightRouteWorkShift, as it must always have a bTMS
+    if (!this.equals(aNightRouteWorkShift.getBTMS()))
+    {
+      nightRouteWorkShifts.remove(aNightRouteWorkShift);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+
+  public boolean addNightRouteWorkShiftAt(NightRouteWorkShift aNightRouteWorkShift, int index)
+  {  
+    boolean wasAdded = false;
+    if(addNightRouteWorkShift(aNightRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfNightRouteWorkShifts()) { index = numberOfNightRouteWorkShifts() - 1; }
+      nightRouteWorkShifts.remove(aNightRouteWorkShift);
+      nightRouteWorkShifts.add(index, aNightRouteWorkShift);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveNightRouteWorkShiftAt(NightRouteWorkShift aNightRouteWorkShift, int index)
+  {
+    boolean wasAdded = false;
+    if(nightRouteWorkShifts.contains(aNightRouteWorkShift))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfNightRouteWorkShifts()) { index = numberOfNightRouteWorkShifts() - 1; }
+      nightRouteWorkShifts.remove(aNightRouteWorkShift);
+      nightRouteWorkShifts.add(index, aNightRouteWorkShift);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addNightRouteWorkShiftAt(aNightRouteWorkShift, index);
+    }
+    return wasAdded;
+  }
+
   public void delete()
   {
     while (buses.size() > 0)
@@ -588,27 +727,15 @@ public class BTMS
       buses.remove(aBus);
     }
     
-    while (morningRouteWorkShifts.size() > 0)
+      
+    while (routes.size() > 0)
     {
-      MorningRouteWorkShift aMorningRouteWorkShift = morningRouteWorkShifts.get(morningRouteWorkShifts.size() - 1);
-      aMorningRouteWorkShift.delete();
-      morningRouteWorkShifts.remove(aMorningRouteWorkShift);
+      Route aRoute = routes.get(routes.size() - 1);
+      aRoute.delete();
+      routes.remove(aRoute);
     }
     
-    while (afternoonRouteWorkShifts.size() > 0)
-    {
-      AfternoonRouteWorkShift aAfternoonRouteWorkShift = afternoonRouteWorkShifts.get(afternoonRouteWorkShifts.size() - 1);
-      aAfternoonRouteWorkShift.delete();
-      afternoonRouteWorkShifts.remove(aAfternoonRouteWorkShift);
-    }
-    
-    while (nightRouteWorkShifts.size() > 0)
-    {
-      NightRouteWorkShift aNightRouteWorkShift = nightRouteWorkShifts.get(nightRouteWorkShifts.size() - 1);
-      aNightRouteWorkShift.delete();
-      nightRouteWorkShifts.remove(aNightRouteWorkShift);
-    }
-    
+      
     while (drivers.size() > 0)
     {
       Driver aDriver = drivers.get(drivers.size() - 1);
@@ -616,14 +743,40 @@ public class BTMS
       drivers.remove(aDriver);
     }
     
+      
+    while (morningRouteWorkShifts.size() > 0)
+    {
+      MorningRouteWorkShift aMorningRouteWorkShift = morningRouteWorkShifts.get(morningRouteWorkShifts.size() - 1);
+      aMorningRouteWorkShift.delete();
+      morningRouteWorkShifts.remove(aMorningRouteWorkShift);
+    }
+    
+      
+    while (afternoonRouteWorkShifts.size() > 0)
+    {
+      AfternoonRouteWorkShift aAfternoonRouteWorkShift = afternoonRouteWorkShifts.get(afternoonRouteWorkShifts.size() - 1);
+      aAfternoonRouteWorkShift.delete();
+      afternoonRouteWorkShifts.remove(aAfternoonRouteWorkShift);
+    }
+    
+      
+    while (nightRouteWorkShifts.size() > 0)
+    {
+      NightRouteWorkShift aNightRouteWorkShift = nightRouteWorkShifts.get(nightRouteWorkShifts.size() - 1);
+      aNightRouteWorkShift.delete();
+      nightRouteWorkShifts.remove(aNightRouteWorkShift);
+    }
+    
+      
   }
 
 
   public String toString()
   {
-    String outputString = "";
+	  String outputString = "";
     return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "currentDate" + "=" + (getCurrentDate() != null ? !getCurrentDate().equals(this)  ? getCurrentDate().toString().replaceAll("  ","    ") : "this" : "null")
+            "  " + "currentDate" + "=" + (getCurrentDate() != null ? !getCurrentDate().equals(this)  ? getCurrentDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "threeDaysAhead" + "=" + (getThreeDaysAhead() != null ? !getThreeDaysAhead().equals(this)  ? getThreeDaysAhead().toString().replaceAll("  ","    ") : "this" : "null")
      + outputString;
   }
 }

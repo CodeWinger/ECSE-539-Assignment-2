@@ -1,44 +1,97 @@
 namespace ca.mcgill.ecse539.btms.model;
 
 class BTMS{
- singleton;
-1 <@>- *  Bus;
+singleton;
+1 <@>- * Bus;
+1 <@>- * Route;
+1 <@>- * Driver; 
 1 <@>- * MorningRouteWorkShift;
 1 <@>- * AfternoonRouteWorkShift;
 1 <@>- * NightRouteWorkShift;
-1 <@>- * Driver; 
  
- Date currentDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
- //Date threeDaysFromCurrentDate = {getCurrentDate() + };
- //add associatiosn to shift objects?
+ lazy immutable Date currentDate;
+ lazy immutable Date threeDaysAhead;
+ 
+ /*WARNING: This before call doesn't work in the constructor BTMS, 
+ instead the code written below has been directly hard-coded in the BTMS constructor.
+ Future automatic generations of the model will not have this code written anywhere.
+ See the report for more information regarding this issue.*/
+ before BTMS {
+	Calendar calendar = Calendar.getInstance();
+	setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
+	calendar.add(Calendar.DATE, 3);
+	setThreeDaysAhead(new java.sql.Date(calendar.getTime().getTime()));
+	}
+ 
+ /*WARNING: currently in BTMS, there are 3 methods with each of them being overloaded once for
+ a total of 6 methods. They are:
+   1. MorningRouteWorkShift addMorningRouteWorkShift(Route aRoute, Date aWorkDate) and
+   2. boolean addMorningRouteWorkShift(MorningRouteWorkShift aMorningRouteWorkShift)
+  	  
+   3. AfternoonRouteWorkShift addAfternoonRouteWorkShift(Route aRoute, Date aWorkDate) and
+   4. boolean addAfternoonRouteWorkShift(AfternoonRouteWorkShift aAfternoonRouteWorkShift)
+   	  
+   5. NightRouteWorkShift addNightRouteWorkShift(Route aRoute, Date aWorkDate) and
+   6. boolean addNightRouteWorkShift(NightRouteWorkShift aNightRouteWorkShift)
+   
+Unfortunately, we couldn't find a way to specify in which overloaded method we wanted to inject code
+and to add insult to injury, by default, it generates the code in the method we didn't want (2,4,6)!
+Therefore, the code written below has been directly hard-coded in methods (1,3,5) and future automatic 
+generations of the model will not have these snippets of code written anymore. See the report for more 
+information regarding this issue.*/   
+    							
+/*	before addMorningRouteWorkShift{
+	 	if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
+	}
+*/
 }
 
 class Bus
-{ 
-  //1 -- * RouteShift;
-  
+{  
   unique String licensePlate;
-  Boolean needsRepair = false; 	
+  busStatus {
+  		FUNCTIONNAL {
+  			busBreaksDown -> IN_REPAIR;
+  		}
+  		IN_REPAIR {
+  		}
+  }
 }
 
 class Driver{
-   //1 -- * RouteShift;
-
    immutable String name;
    autounique id;
-   Boolean isSick = false;
+  
+  workStatus {
+  		CAN_WORK {
+  			drivenStrickenWithIllness -> SICK;
+  		} 		
+  		SICK {
+  		
+  		}
+  }
 }
 
+class Route {
+	unique Integer routeNumber;
+}
 
 class RouteWorkShift {
 	abstract;
 	* -- * Bus;
 	* -- * Driver;
+	* -> 1 Route;
+
+	before addBus{
+		 if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
+    			return false;
+	}
 	
-	//ShiftType{ Morning{} Afternoon{} Night{} }
-	//find way to make RouteWorkShift contain name attribute
-	immutable Integer routeNumber;
-	//uniqueDate date;
+	before addDriver{
+		if(aDriver.getWorkStatus() == ca.mcgill.ecse539.btms.model.Driver.WorkStatus.SICK)
+    			return false;
+	}
 }
 
 class MorningRouteWorkShift{

@@ -1,10 +1,10 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.24.0-dab6b48 modeling language!*/
+/*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 24 "../../../../../model.ump"
+// line 66 "../../../../../model.ump"
 public class Driver
 {
 
@@ -20,10 +20,13 @@ public class Driver
 
   //Driver Attributes
   private String name;
-  private boolean isSick;
 
   //Autounique Attributes
   private int id;
+
+  //Driver State Machines
+  enum WorkStatus { CAN_WORK, SICK }
+  private WorkStatus workStatus;
 
   //Driver Associations
   private BTMS bTMS;
@@ -36,7 +39,6 @@ public class Driver
   public Driver(String aName, BTMS aBTMS)
   {
     name = aName;
-    isSick = false;
     id = nextId++;
     boolean didAddBTMS = setBTMS(aBTMS);
     if (!didAddBTMS)
@@ -44,19 +46,12 @@ public class Driver
       throw new RuntimeException("Unable to create driver due to bTMS");
     }
     routeWorkShifts = new ArrayList<RouteWorkShift>();
+    setWorkStatus(WorkStatus.CAN_WORK);
   }
 
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setIsSick(boolean aIsSick)
-  {
-    boolean wasSet = false;
-    isSick = aIsSick;
-    wasSet = true;
-    return wasSet;
-  }
 
   /**
    * 1 -- * RouteShift;
@@ -66,19 +61,43 @@ public class Driver
     return name;
   }
 
-  public boolean getIsSick()
-  {
-    return isSick;
-  }
-
   public int getId()
   {
     return id;
   }
 
-  public boolean isIsSick()
+  public String getWorkStatusFullName()
   {
-    return isSick;
+    String answer = workStatus.toString();
+    return answer;
+  }
+
+  public WorkStatus getWorkStatus()
+  {
+    return workStatus;
+  }
+
+  public boolean drivenStrickenWithIllness()
+  {
+    boolean wasEventProcessed = false;
+    
+    WorkStatus aWorkStatus = workStatus;
+    switch (aWorkStatus)
+    {
+      case CAN_WORK:
+        setWorkStatus(WorkStatus.SICK);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  private void setWorkStatus(WorkStatus aWorkStatus)
+  {
+    workStatus = aWorkStatus;
   }
 
   public BTMS getBTMS()
@@ -233,11 +252,10 @@ public class Driver
 
   public String toString()
   {
-    String outputString = "";
+	  String outputString = "";
     return super.toString() + "["+
             "id" + ":" + getId()+ "," +
-            "name" + ":" + getName()+ "," +
-            "isSick" + ":" + getIsSick()+ "]" + System.getProperties().getProperty("line.separator") +
+            "name" + ":" + getName()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "bTMS = "+(getBTMS()!=null?Integer.toHexString(System.identityHashCode(getBTMS())):"null")
      + outputString;
   }

@@ -1,10 +1,10 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.24.0-dab6b48 modeling language!*/
+/*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 33 "../../../../../model.ump"
+// line 86 "../../../../../model.ump"
 public abstract class RouteWorkShift
 {
 
@@ -12,36 +12,28 @@ public abstract class RouteWorkShift
   // MEMBER VARIABLES
   //------------------------
 
-  //RouteWorkShift Attributes
-  private int routeNumber;
-
   //RouteWorkShift Associations
   private List<Bus> buses;
   private List<Driver> drivers;
+  private Route route;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public RouteWorkShift(int aRouteNumber)
+  public RouteWorkShift(Route aRoute)
   {
-    routeNumber = aRouteNumber;
     buses = new ArrayList<Bus>();
     drivers = new ArrayList<Driver>();
+    if (!setRoute(aRoute))
+    {
+      throw new RuntimeException("Unable to create RouteWorkShift due to aRoute");
+    }
   }
 
   //------------------------
   // INTERFACE
   //------------------------
-
-  /**
-   * ShiftType{ Morning{} Afternoon{} Night{} }
-   * find way to make RouteWorkShift contain name attribute
-   */
-  public int getRouteNumber()
-  {
-    return routeNumber;
-  }
 
   public Bus getBus(int index)
   {
@@ -103,6 +95,11 @@ public abstract class RouteWorkShift
     return index;
   }
 
+  public Route getRoute()
+  {
+    return route;
+  }
+
   public static int minimumNumberOfBuses()
   {
     return 0;
@@ -111,6 +108,9 @@ public abstract class RouteWorkShift
   public boolean addBus(Bus aBus)
   {
     boolean wasAdded = false;
+    // line 92 "../../../../../model.ump"
+    if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
+        			return false;
     if (buses.contains(aBus)) { return false; }
     if (buses.contains(aBus)) { return false; }
     if (buses.contains(aBus)) { return false; }
@@ -196,6 +196,9 @@ public abstract class RouteWorkShift
   public boolean addDriver(Driver aDriver)
   {
     boolean wasAdded = false;
+    // line 97 "../../../../../model.ump"
+    if(aDriver.getWorkStatus() == ca.mcgill.ecse539.btms.model.Driver.WorkStatus.SICK)
+        			return false;
     if (drivers.contains(aDriver)) { return false; }
     if (drivers.contains(aDriver)) { return false; }
     if (drivers.contains(aDriver)) { return false; }
@@ -273,6 +276,17 @@ public abstract class RouteWorkShift
     return wasAdded;
   }
 
+  public boolean setRoute(Route aNewRoute)
+  {
+    boolean wasSet = false;
+    if (aNewRoute != null)
+    {
+      route = aNewRoute;
+      wasSet = true;
+    }
+    return wasSet;
+  }
+
   public void delete()
   {
     ArrayList<Bus> copyOfBuses = new ArrayList<Bus>(buses);
@@ -287,14 +301,7 @@ public abstract class RouteWorkShift
     {
       aDriver.removeRouteWorkShift(this);
     }
+    route = null;
   }
 
-
-  public String toString()
-  {
-    String outputString = "";
-    return super.toString() + "["+
-            "routeNumber" + ":" + getRouteNumber()+ "]"
-     + outputString;
-  }
 }
