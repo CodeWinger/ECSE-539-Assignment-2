@@ -1,10 +1,10 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.24.0-dab6b48 modeling language!*/
+/*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 16 "../../../../../model.ump"
+// line 50 "../../../../../model.ump"
 public class Bus
 {
 
@@ -20,7 +20,10 @@ public class Bus
 
   //Bus Attributes
   private String licensePlate;
-  private boolean needsRepair;
+
+  //Bus State Machines
+  enum BusStatus { FUNCTIONNAL, IN_REPAIR }
+  private BusStatus busStatus;
 
   //Bus Associations
   private BTMS bTMS;
@@ -32,7 +35,6 @@ public class Bus
 
   public Bus(String aLicensePlate, BTMS aBTMS)
   {
-    needsRepair = false;
     if (!setLicensePlate(aLicensePlate))
     {
       throw new RuntimeException("Cannot create due to duplicate licensePlate");
@@ -43,6 +45,7 @@ public class Bus
       throw new RuntimeException("Unable to create bus due to bTMS");
     }
     routeWorkShifts = new ArrayList<RouteWorkShift>();
+    setBusStatus(BusStatus.FUNCTIONNAL);
   }
 
   //------------------------
@@ -65,14 +68,6 @@ public class Bus
     return wasSet;
   }
 
-  public boolean setNeedsRepair(boolean aNeedsRepair)
-  {
-    boolean wasSet = false;
-    needsRepair = aNeedsRepair;
-    wasSet = true;
-    return wasSet;
-  }
-
   /**
    * 1 -- * RouteShift;
    */
@@ -91,14 +86,38 @@ public class Bus
     return getWithLicensePlate(aLicensePlate) != null;
   }
 
-  public boolean getNeedsRepair()
+  public String getBusStatusFullName()
   {
-    return needsRepair;
+    String answer = busStatus.toString();
+    return answer;
   }
 
-  public boolean isNeedsRepair()
+  public BusStatus getBusStatus()
   {
-    return needsRepair;
+    return busStatus;
+  }
+
+  public boolean busBreaksDown()
+  {
+    boolean wasEventProcessed = false;
+    
+    BusStatus aBusStatus = busStatus;
+    switch (aBusStatus)
+    {
+      case FUNCTIONNAL:
+        setBusStatus(BusStatus.IN_REPAIR);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  private void setBusStatus(BusStatus aBusStatus)
+  {
+    busStatus = aBusStatus;
   }
 
   public BTMS getBTMS()
@@ -254,10 +273,9 @@ public class Bus
 
   public String toString()
   {
-    String outputString = "";
+	  String outputString = "";
     return super.toString() + "["+
-            "licensePlate" + ":" + getLicensePlate()+ "," +
-            "needsRepair" + ":" + getNeedsRepair()+ "]" + System.getProperties().getProperty("line.separator") +
+            "licensePlate" + ":" + getLicensePlate()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "bTMS = "+(getBTMS()!=null?Integer.toHexString(System.identityHashCode(getBTMS())):"null")
      + outputString;
   }
