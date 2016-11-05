@@ -27,9 +27,13 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.SqlDateModel;
 
+import ca.mcgill.ecse539.btms.model.AfternoonRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.BTMS;
 import ca.mcgill.ecse539.btms.model.Bus;
 import ca.mcgill.ecse539.btms.model.Driver;
+import ca.mcgill.ecse539.btms.model.MorningRouteWorkShift;
+import ca.mcgill.ecse539.btms.model.NightRouteWorkShift;
+import ca.mcgill.ecse539.btms.model.Route;
 
 
 public class BtmsPage extends JFrame {
@@ -384,15 +388,12 @@ public class BtmsPage extends JFrame {
 		// call the controller
 		error = "";
 		// TODO
-		if(((DefaultComboBoxModel) driverList.getModel()).getIndexOf(driverNameTextField.getText()) == -1)
+		if(!driverNameTextField.getText().equals(""))
 		{
-          driverList.addItem(driverNameTextField.getText()); 
-          btms.addDriver(driverNameTextField.getText());
+	        driverList.addItem(driverNameTextField.getText()); 
+	        btms.addDriver(driverNameTextField.getText());
 		}
-		else
-		{
-			error += " Driver already in the Database!";
-		}
+
 		// update visuals
 		refreshData();
 	}
@@ -415,9 +416,10 @@ public class BtmsPage extends JFrame {
 		// call the controller
 		error = "";
 		// TODO
-		if(((DefaultComboBoxModel) routeList.getModel()).getIndexOf(routeNumberTextField.getText()) == -1)
+		if((((DefaultComboBoxModel) routeList.getModel()).getIndexOf(routeNumberTextField.getText()) == -1)&&(!routeNumberTextField.getText().equals("")))
 		{
 		  routeList.addItem(routeNumberTextField.getText());
+		  btms.addRoute(Integer.parseInt(routeNumberTextField.getText()));
 		}
 		else
 		{
@@ -431,7 +433,7 @@ public class BtmsPage extends JFrame {
 		// call the controller
 		error = null;
 		// TODO
-		if(((DefaultComboBoxModel) busList.getModel()).getIndexOf(busLicencePlateTextField.getText()) == -1)
+		if((((DefaultComboBoxModel) busList.getModel()).getIndexOf(busLicencePlateTextField.getText()) == -1)&&(!busLicencePlateTextField.getText().equals("")))
 		{
 			busList.addItem(busLicencePlateTextField.getText());
 			busRepairList.addItem(busLicencePlateTextField.getText());
@@ -464,30 +466,77 @@ public class BtmsPage extends JFrame {
 		Date selectedDate = (Date) assignmentDatePicker.getModel().getValue();
 		Date todaysDate = new Date();
 		long diff = selectedDate.getTime() - todaysDate.getTime();
-		error += diff;
+		//error += diff;
         if(((diff/ 1000 / 60 / 60 / 24) > 2) )
         {
         	error += "Date more than 3 days away! ";
         }
         else if(diff < 0)
         {
-        	error += "Date cannot be before todays date! ";
+        	error += "Date cannot be before or todays date! ";
         }
 		if (selectedBus < 0)
 			error = error + "Bus needs to be selected for assignment! ";
 		if (selectedRoute < 0)
 			error = error + "Route needs to be selected for assignment!";
+		
 		error = error.trim();
 		
 		if (error.length() == 0) {
 			// call the controller
-			//JUST A TEST
-			for (int count = 1; count <= 30; count++) {
-			       dtm.addRow(new Object[] { "data", "data", "data",
-			                "data", "data"});
-			} 
-			// TOOD
+			//Find route from route list
+			Route routeToBeAssigned = null;
+			int routeNumToBeAssigned = Integer.parseInt(routeList.getItemAt(selectedRoute));
+			for( Route i : btms.getRoutes()){
+				if (i.getRouteNumber() == routeNumToBeAssigned)
+				{
+					routeToBeAssigned = i;
+				}
+			}
+			//Find bus from bus list
+			Bus busToBeAssigned = null;
+			String licensePlate = busList.getItemAt(selectedBus);
+			for( Bus i : btms.getBuses()){
+				if (i.getLicensePlate().equals(licensePlate))
+				{
+					busToBeAssigned = i;
+				}
+				
+			}
+			
+			System.out.println("*********************************" + shiftList.getItemAt(selectedShift));
+			//Check what to create
+			if(shiftList.getItemAt(selectedShift).equals("Morning")){
+				MorningRouteWorkShift rws = btms.addMorningRouteWorkShift(routeToBeAssigned, 
+						                     (java.sql.Date) selectedDate);
+				if(!rws.getBuses().contains(busToBeAssigned)){
+					rws.addBus(busToBeAssigned);
+				}
+				
+			}
+			else if(shiftList.getItemAt(selectedShift).equals("Afternoon")){
+				AfternoonRouteWorkShift rws =btms.addAfternoonRouteWorkShift(routeToBeAssigned, 
+	                     (java.sql.Date) selectedDate);
+				if(!rws.getBuses().contains(busToBeAssigned)){
+					rws.addBus(busToBeAssigned);
+				}
+			}
+			else{
+				NightRouteWorkShift rws = btms.addNightRouteWorkShift(routeToBeAssigned, 
+	                     (java.sql.Date) selectedDate);
+				if(!rws.getBuses().contains(busToBeAssigned)){
+					rws.addBus(busToBeAssigned);
+				}
+			}
+			
+			for(MorningRouteWorkShift i : btms.getMorningRouteWorkShifts()){
+				System.out.println(i.toString());
+			}
+				
+			
 		}
+			// TOOD
+		
 		// update visuals
 		
 		refreshData();			
