@@ -34,6 +34,7 @@ import ca.mcgill.ecse539.btms.model.Driver;
 import ca.mcgill.ecse539.btms.model.MorningRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.NightRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.Route;
+import ca.mcgill.ecse539.btms.model.RouteWorkShift;
 
 
 public class BtmsPage extends JFrame {
@@ -463,6 +464,7 @@ public class BtmsPage extends JFrame {
 
 	private void assignButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		error = "";
+		boolean rwsAlreadyAssigned = false; 
 		Date selectedDate = (Date) assignmentDatePicker.getModel().getValue();
 		Date todaysDate = new Date();
 		long diff = selectedDate.getTime() - todaysDate.getTime();
@@ -479,81 +481,113 @@ public class BtmsPage extends JFrame {
 			error = error + "Bus needs to be selected for assignment! ";
 		if (selectedRoute < 0)
 			error = error + "Route needs to be selected for assignment!";
-		
+		java.sql.Date dateSelected = (java.sql.Date) selectedDate;
+		//Check if rws exists already
 		error = error.trim();
 		
+		//Find route from route list
+		Route routeToBeAssigned = null;
+		int routeNumToBeAssigned = Integer.parseInt(routeList.getItemAt(selectedRoute));
+		for( Route i : btms.getRoutes()){
+			if (i.getRouteNumber() == routeNumToBeAssigned)
+			{
+				routeToBeAssigned = i;
+			}
+		}
+		//Find bus from bus list
+		Bus busToBeAssigned = null;
+		String licensePlate = busList.getItemAt(selectedBus);
+		for( Bus i : btms.getBuses()){
+			if (i.getLicensePlate().equals(licensePlate))
+			{
+				busToBeAssigned = i;
+			}
+		}	
 		//All inputs good to go so far
-		if (error.length() == 0) {
+		if (error.length() == 0) {	
 			// call the controller
-			//Find route from route list
-			Route routeToBeAssigned = null;
-			int routeNumToBeAssigned = Integer.parseInt(routeList.getItemAt(selectedRoute));
-			for( Route i : btms.getRoutes()){
-				if (i.getRouteNumber() == routeNumToBeAssigned)
-				{
-					routeToBeAssigned = i;
-				}
-			}
-			//Find bus from bus list
-			Bus busToBeAssigned = null;
-			String licensePlate = busList.getItemAt(selectedBus);
-			for( Bus i : btms.getBuses()){
-				if (i.getLicensePlate().equals(licensePlate))
-				{
-					busToBeAssigned = i;
-				}
-				System.out.println(i);
-			}
-			
-			java.sql.Date dateSelected = (java.sql.Date) selectedDate;
-			
 			//Check what type of Route Work Shift to create
-			if(shiftList.getItemAt(selectedShift).equals("Morning")){
-				try{
-					MorningRouteWorkShift rws = new MorningRouteWorkShift(routeToBeAssigned,dateSelected, btms);
-					btms.addMorningRouteWorkShift(rws);
-					if(!rws.getBuses().contains(busToBeAssigned)){
-						rws.addBus(busToBeAssigned);
-					}
-					else{
-						error += "Shift and bus for this date already assigned!";
-					}
+			String shiftType = shiftList.getItemAt(selectedShift);
+			if(shiftType.equals("Morning")){
+				MorningRouteWorkShift rws = null;
+				for(MorningRouteWorkShift i : btms.getMorningRouteWorkShifts()){
+					if(i.getWorkDate().equals(selectedDate)){
+						rwsAlreadyAssigned = true;
+						rws = i;
+					}	
 				}
-				catch(Exception e){
-
-				}
-			}
-			else if(shiftList.getItemAt(selectedShift).equals("Afternoon")){
-				try
-				{
-					AfternoonRouteWorkShift rws = new AfternoonRouteWorkShift(routeToBeAssigned,dateSelected, btms);
-					btms.addAfternoonRouteWorkShift(rws);
-					if(!rws.getBuses().contains(busToBeAssigned)){
-						rws.addBus(busToBeAssigned);
+				if(!rwsAlreadyAssigned){
+					try{
+						rws = new MorningRouteWorkShift(routeToBeAssigned,dateSelected, btms);
+						btms.addMorningRouteWorkShift(rws);
 					}
-					else{
-						error += "Shift and bus for this date already assigned!";
+					catch(Exception e){
 					}
-				}
-				catch (Exception e){
+				}	  
 					
+				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRwsOnSameDay(dateSelected,busToBeAssigned,shiftType)){
+					rws.addBus(busToBeAssigned);
+				}
+				else{
+					error += "Shift and bus for this date already assigned!";
 				}
 
+			}
+			else if(shiftType.equals("Afternoon")){
+				AfternoonRouteWorkShift rws = null;
+				for(AfternoonRouteWorkShift i : btms.getAfternoonRouteWorkShifts()){
+					if(i.getWorkDate().equals(selectedDate)){
+						rwsAlreadyAssigned =true;
+						rws = i;
+					}	
+				}
+				if(!rwsAlreadyAssigned){
+					try
+					{
+						rws = new AfternoonRouteWorkShift(routeToBeAssigned,dateSelected, btms);
+						btms.addAfternoonRouteWorkShift(rws);
+
+					}
+					catch (Exception e){
+						
+					}
+				}	
+				
+				if(!rws.getBuses().contains(busToBeAssigned)&& !isInAnotherRwsOnSameDay(dateSelected,busToBeAssigned,shiftType)){
+						rws.addBus(busToBeAssigned);
+				}
+				else{
+						error += "Shift and bus for this date already assigned!";
+				}
 			}
 			else{
-				try{
-					NightRouteWorkShift rws = new NightRouteWorkShift(routeToBeAssigned,dateSelected, btms);
-					btms.addNightRouteWorkShift(rws);
-					if(!rws.getBuses().contains(busToBeAssigned)){
-						rws.addBus(busToBeAssigned);
+				
+				NightRouteWorkShift rws = null;
+				for(NightRouteWorkShift i : btms.getNightRouteWorkShifts()){
+					if(i.getWorkDate().equals(selectedDate)){
+						rwsAlreadyAssigned =true;
+						rws = i;
+					}	
+				}
+				if(!rwsAlreadyAssigned){
+					try{
+						rws = new NightRouteWorkShift(routeToBeAssigned,dateSelected, btms);
+						btms.addNightRouteWorkShift(rws);
 					}
-					else{
-						error += "Shift and bus for this date already assigned!";
+					catch(Exception e){
 					}
 				}
-				catch(Exception e){
+				
+				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRwsOnSameDay(dateSelected,busToBeAssigned,shiftType)){
+						rws.addBus(busToBeAssigned);
+				}
+				else{
+						error += "Shift and bus for this date already assigned!";
 				}
 			}
+			
+			/* At this point a route has a bus and a shift for a day */
+			
 			if(error.length()== 0)
 			{
 				for(MorningRouteWorkShift i : btms.getMorningRouteWorkShifts()){
@@ -562,22 +596,63 @@ public class BtmsPage extends JFrame {
 				}
 				for(AfternoonRouteWorkShift i : btms.getAfternoonRouteWorkShifts()){
 					System.out.println(i.toString());
+					System.out.println(i.getBuses());
 				}
 				for(NightRouteWorkShift i : btms.getNightRouteWorkShifts()){
 					System.out.println(i.toString());
+					System.out.println(i.getBuses());
 				}
-				
-			}
-			
-
-				
+			}			
 			
 		}
+		
+		
 			// TOOD
 		
 		// update visuals
 		
 		refreshData();			
 	}
+	
+	private boolean isInAnotherRwsOnSameDay(java.sql.Date Date, Bus bus, String shift){
+		if(shift.equals("Morning")){
+			for (NightRouteWorkShift rws : btms.getNightRouteWorkShifts()){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+					 return true;
+				}	
+			}
+			for (AfternoonRouteWorkShift rws : btms.getAfternoonRouteWorkShifts()){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+					 return true;
+				}
+			}
+		}
+		else if(shift.equals("Afternoon")){
+			for (NightRouteWorkShift rws : btms.getNightRouteWorkShifts()){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+					 return true;
+				}	
+			}
+			for (MorningRouteWorkShift rws : btms.getMorningRouteWorkShifts()){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+					 return true;
+				}
+			}
+		}
+		else{
+			for (AfternoonRouteWorkShift rws : btms.getAfternoonRouteWorkShifts()){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+					 return true;
+				}	
+			}
+			for (MorningRouteWorkShift rws : btms.getMorningRouteWorkShifts()){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+					 return true;
+				}
+			}
+		}
 
+		return false;
+		
+	}
 }
