@@ -2,8 +2,9 @@ package ca.mcgill.ecse539.btms.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.List;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,7 +24,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -74,14 +77,14 @@ public class BtmsPage extends JFrame {
 	// shift assignment
 	private JComboBox<String> shiftList;
 	private JLabel shiftLabel;
-	JTextArea textArea = new JTextArea(100, 50);
+
 	private JTable outputTable;
 	private JPanel panel_1 = new JPanel();
 	private DefaultTableModel dtm;
 	// temporary elements
 	private JLabel hint1;
 	private JLabel hint2;
-
+    private JTextArea sickDriverDisplay = new JTextArea();
 	// data elements
 	private String error = null;
 	private Integer selectedBus = -1;
@@ -96,10 +99,8 @@ public class BtmsPage extends JFrame {
 	private Integer selectedShift= 0;
 	public BTMS btms = BTMS.getInstance();
 	
-	TextAreaOutputStream taOutputStream = new TextAreaOutputStream(
-	         textArea, "");
-	
-		/** Creates new form EventRegistrationPage */
+
+	/** Creates new form EventRegistrationPage */
 	public BtmsPage() {
 		initComponents();
 		refreshData();
@@ -243,33 +244,29 @@ public class BtmsPage extends JFrame {
 			}
 		});
 		
-		setLayout(new BorderLayout());
-	    add(new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
-	           JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-	     System.setOut(new PrintStream(taOutputStream));
-
-
-		hint1.setText("Hint: add scheduling of drivers here...");
-		hint2.setText("Overview for Next Three Days");
 		
-		//Added output table 
+
+		hint2.setText("Daily Overview for the next Three Days");
+		
 		outputTable = new JTable();
 		dtm = new DefaultTableModel(0, 0);
 		// add header of the table
-		String header[] = new String[] { "Driver", "Date", "Shift", "Bus", "Route"};
+		String header[] = new String[] { "Route", "Date", "Shift", "Bus License Number", "Driver Name", "Driver ID"};
 
 		
 		JScrollPane js=new JScrollPane(outputTable);
 		js.setVisible(true);
 		add(js);
 		// add header in table model     
-		 dtm.setColumnIdentifiers(header);
-		 dtm.addRow(new Object[] { "Driver", "Date", "Shift", "Bus", "Route"});
+		dtm.setColumnIdentifiers(header);
 		//set model into the table object
-		 outputTable.setModel(dtm);
-	     panel_1.setLayout(new BorderLayout());
-	     panel_1.add(js, BorderLayout.CENTER);
-		
+	    outputTable.setDefaultRenderer(String.class, new MyRenderer());
+		outputTable.setModel(dtm);
+	    panel_1.setLayout(new BorderLayout());
+	    panel_1.add(outputTable.getTableHeader(), BorderLayout.NORTH);
+	    panel_1.add(outputTable, BorderLayout.CENTER);
+	     
+
 		// horizontal line elements
 		JSeparator horizontalLineTop = new JSeparator();
 		JSeparator horizontalLineMiddle1 = new JSeparator();
@@ -288,9 +285,9 @@ public class BtmsPage extends JFrame {
 				.addComponent(horizontalLineMiddle1)
 				.addComponent(horizontalLineMiddle2)
 				.addComponent(horizontalLineBottom)
-				.addComponent(hint1)
+				.addComponent(sickDriverDisplay)
 				.addComponent(hint2)
-				.addComponent(textArea)
+				.addComponent(panel_1)
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
 								.addComponent(driverNameLabel)
@@ -373,13 +370,13 @@ public class BtmsPage extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addComponent(horizontalLineMiddle2))
 				.addGroup(layout.createParallelGroup()
-						.addComponent(hint1))
+						.addComponent(sickDriverDisplay))
 				.addGroup(layout.createParallelGroup()
 						.addComponent(horizontalLineBottom))
 				.addGroup(layout.createParallelGroup()
 						.addComponent(hint2))
 				.addGroup(layout.createParallelGroup()
-						.addComponent(textArea))
+						.addComponent(panel_1))
 				);
 		
 		pack();
@@ -422,14 +419,9 @@ public class BtmsPage extends JFrame {
 			// call the controller
 			for(Driver i: btms.getDrivers()){
 				if(i.getName().equals(name)){
-					if(sickList.contains(i)){
-						sickList.remove(i);
-						break;
-					}
-					else{
-						sickList.add(i);
-						break;
-					}			
+			        if(!i.drivenStrickenWithIllness()){
+			        	error += "Error adding a sick driver!"; 
+			        }
 				}
 			}
 			//driverList.removeItemAt(selectedDriver);
@@ -484,16 +476,12 @@ public class BtmsPage extends JFrame {
 			// call the controller
 			for(Bus i: btms.getBuses()){
 				if(i.getLicensePlate().equals(license)){
-					if(repairList.contains(i)){
-						repairList.remove(i);
-					}
-					else{
-						repairList.add(i);
-					}	
-					break;
+			        if(!i.busBreaksDown()){
+			        	error += "Error in adding a bus to sick list!"; 
+			        }
 				}
 			}
-			busList.removeItemAt(selectedRepairBus);
+			//busList.removeItemAt(selectedRepairBus);
 			// TOOD
 		}
 		refreshData();
@@ -549,9 +537,6 @@ public class BtmsPage extends JFrame {
 			}
 		}
 
-		if(sickList.contains(driverToBeAssigned)){
-			error += "Trying to assign a sick driver!";
-		}
 		//All inputs good to go so far
 		if (error.length() == 0) {	
 			// call the controller
@@ -560,9 +545,10 @@ public class BtmsPage extends JFrame {
 			if(shiftType.equals("Morning")){
 				MorningRouteWorkShift rws = null;
 				for(MorningRouteWorkShift i : btms.getMorningRouteWorkShifts()){
-					if(i.getWorkDate().equals(selectedDate)){
+					if(i.getWorkDate().equals(selectedDate) && i.getRoute().equals(routeToBeAssigned)){
 						rwsAlreadyAssigned = true;
 						rws = i;
+						break;
 					}	
 				}
 				if(!rwsAlreadyAssigned){
@@ -571,26 +557,24 @@ public class BtmsPage extends JFrame {
 						btms.addMorningRouteWorkShift(rws);
 					}
 					catch(Exception e){
+
 					}
 				}	  
-					
+						
 				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)){
 					rws.addBus(busToBeAssigned);
+					if(!rws.getDrivers().contains(driverToBeAssigned)){
+						rws.addDriver(driverToBeAssigned);
+					}
+					else{
+						error += "Shift, Driver and bus for this date already assigned!";
+					}
 				}
 				else{
 					error += "Shift and bus for this date already assigned!";
 				}
-				
 				/* At this point a route has a bus and a shift for a day */
-				//Time to add drivers 
-				if(!rws.getDrivers().contains(driverToBeAssigned)){
-					rws.addDriver(driverToBeAssigned);
-				}
-				else{
-					error += "Shift, Driver and bus for this date already assigned!";
-				}
-
-
+				//Time to add drivers
 			}
 			else if(shiftType.equals("Afternoon")){
 				AfternoonRouteWorkShift rws = null;
@@ -659,72 +643,77 @@ public class BtmsPage extends JFrame {
 				}
 			}
 			
-
-			
-			
+			//Ready To display
 			if(error.length()== 0)
 			{
-
-                textArea.setText("");
-				//System.out.println();
-				System.out.println("BUSES IN REPAIR");
-				System.out.println("_______________");
-				for(Bus i : repairList){
-					System.out.println(i.getLicensePlate());
-				}
-				System.out.println();
-				System.out.println("SICK DRIVERS");
-				System.out.println("_______________");
-				for(Driver i : sickList){
-					System.out.println(i.getName() + " Id: " + i.getId());
-				}
-				System.out.println();
-				System.out.println("OVERVIEW FOR NEXT THREE DAYS");
-				System.out.println("____________________________");
-				for(MorningRouteWorkShift i : btms.getMorningRouteWorkShifts()){
-					int k =0;
-					for(Bus j : i.getBuses()){
-						
-						System.out.println("Route: " + i.getRoute().getRouteNumber() + "\t Date: "+ i.getWorkDate() + "\t Shift: " + i.getShiftName()
-						+ "\t\t Bus:" + j.getLicensePlate() + "\t Driver: " + i.getDrivers().get(k).getName() + "\t\t ID: " + i.getDrivers().get(k).getId());
-						k++;
-						//System.out.println(i.getBuses());
-					}
-
-				}
-				for(AfternoonRouteWorkShift i : btms.getAfternoonRouteWorkShifts()){
-					int k =0;
-					for(Bus j : i.getBuses()){
-						
-						System.out.println("Route: " + i.getRoute().getRouteNumber() + "\t Date: "+ i.getWorkDate() + "\t Shift: \t" + i.getShiftName()
-						+ "\t Bus:" + j.getLicensePlate() + "\t Driver: \t" + i.getDrivers().get(k).getName() + "\t ID: " + i.getDrivers().get(k).getId());
-						k++;
-						//System.out.println(i.getBuses());
-					}
-				}
-				for(NightRouteWorkShift i : btms.getNightRouteWorkShifts()){
-					int k =0;
-					for(Bus j : i.getBuses()){
-						
-						System.out.println("Route: " + i.getRoute().getRouteNumber() + "\t Date: "+ i.getWorkDate() + "\t Shift: \t" + i.getShiftName()
-						+ "\t Bus:" + j.getLicensePlate() + "\t Driver: \t" + i.getDrivers().get(k).getName() + "\t ID: " + i.getDrivers().get(k).getId());
-						k++;
-						//System.out.println(i.getBuses());
-					};
-				}
-				
-
+			   // debugPrint();
+			    displayData();
 			}			
 			
-		}
-		
-		
-			// TOOD
-		
+		}		
+			// TOOD	
 		// update visuals
 		
 		refreshData();			
 	}
+	
+	private void displayData(){
+		    dtm = new DefaultTableModel(0, 0);
+			// add header of the table
+			String header[] = new String[] { "Route", "Date", "Shift", "Bus License Number", "Driver Name", "Driver ID"};
+			dtm.setColumnIdentifiers(header);
+			//set model into the table object
+			
+			outputTable.setModel(dtm);
+
+
+			for(MorningRouteWorkShift i : btms.getMorningRouteWorkShifts()){
+				int k = 0;
+				for(Bus j : i.getBuses()){
+					String routeNumber = "" + i.getRoute().getRouteNumber();
+					String date = "" + i.getWorkDate();
+					String shift = "" + i.getShiftName();
+					String busLicense = "" + j.getLicensePlate();
+					String driverName = "" + i.getDrivers().get(k).getName();
+					String driverIdNum = "" + i.getDrivers().get(k).getId();
+					dtm.addRow(new Object[] {routeNumber, date, shift,busLicense, driverName, driverIdNum});
+					k++;
+				}
+				
+			}
+			for(AfternoonRouteWorkShift i : btms.getAfternoonRouteWorkShifts()){
+					int k =0;
+					for(Bus j : i.getBuses()){
+						String routeNumber = "" + i.getRoute().getRouteNumber();
+						String date = "" + i.getWorkDate();
+						String shift = "" + i.getShiftName();
+						String busLicense = "" + j.getLicensePlate();
+						String driverName = "" + i.getDrivers().get(k).getName();
+						String driverIdNum = "" + i.getDrivers().get(k).getId();
+						dtm.addRow(new Object[] {routeNumber, date, shift,busLicense, driverName, driverIdNum});
+						k++;
+					}
+			}
+			for(NightRouteWorkShift i : btms.getNightRouteWorkShifts()){
+					int k =0;
+					for(Bus j : i.getBuses()){
+						String routeNumber = "" + i.getRoute().getRouteNumber();
+						String date = "" + i.getWorkDate();
+						String shift = "" + i.getShiftName();
+						String busLicense = "" + j.getLicensePlate();
+						String driverName = "" + i.getDrivers().get(k).getName();
+						String driverIdNum = "" + i.getDrivers().get(k).getId();
+						dtm.addRow(new Object[] {routeNumber, date, shift,busLicense, driverName, driverIdNum});
+						k++;
+					}
+			}
+			
+
+			//outputTable.setModel(dtm);
+			pack();
+	}
+	
+	
 	
 	private boolean isInAnotherRouteOnSameDay(java.sql.Date Date, Bus bus, String shift, Route route ){
 		if(shift.equals("Morning")){
@@ -765,6 +754,24 @@ public class BtmsPage extends JFrame {
 		}
 
 		return false;
+	}
+	
+
+	private void debugPrint(){
+		System.out.println();
+		System.out.println("Buses in repair - ");
+		for(Bus i : btms.getBuses()){
+			if(i.getBusStatusFullName().equals("IN_REPAIR"))
+			System.out.println(i.getLicensePlate());
+		}
+		System.out.println();
+		System.out.println("Sick Drivers - ");
+		for(Driver i : btms.getDrivers()){
+			if(i.getWorkStatusFullName().equals("SICK"))
+			System.out.println(i.getId());
+		}
 		
+		System.out.println("***********************NEW ASSIGNMENT*******************************");
+
 	}
 }
