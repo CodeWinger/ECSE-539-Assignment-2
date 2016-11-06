@@ -3,6 +3,7 @@ package ca.mcgill.ecse539.btms.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.List;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -72,7 +74,7 @@ public class BtmsPage extends JFrame {
 	// shift assignment
 	private JComboBox<String> shiftList;
 	private JLabel shiftLabel;
-
+	JTextArea textArea = new JTextArea(100, 50);
 	private JTable outputTable;
 	private JPanel panel_1 = new JPanel();
 	private DefaultTableModel dtm;
@@ -93,12 +95,18 @@ public class BtmsPage extends JFrame {
 	//private HashMap<Integer, Bus> drivers;
 	private Integer selectedShift= 0;
 	public BTMS btms = BTMS.getInstance();
-	/** Creates new form EventRegistrationPage */
+	
+	TextAreaOutputStream taOutputStream = new TextAreaOutputStream(
+	         textArea, "");
+	
+		/** Creates new form EventRegistrationPage */
 	public BtmsPage() {
 		initComponents();
 		refreshData();
 	}
 
+	private ArrayList<Driver> sickList = new ArrayList<Driver>();
+	private ArrayList<Bus> repairList = new ArrayList<Bus>();
 	/** This method is called from within the constructor to initialize the form.
 	 */
 	private void initComponents() {
@@ -235,10 +243,14 @@ public class BtmsPage extends JFrame {
 			}
 		});
 		
-		
+		setLayout(new BorderLayout());
+	    add(new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+	           JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+	     System.setOut(new PrintStream(taOutputStream));
+
 
 		hint1.setText("Hint: add scheduling of drivers here...");
-		hint2.setText("Hint: add daily overview here...");
+		hint2.setText("Overview for Next Three Days");
 		
 		//Added output table 
 		outputTable = new JTable();
@@ -278,7 +290,7 @@ public class BtmsPage extends JFrame {
 				.addComponent(horizontalLineBottom)
 				.addComponent(hint1)
 				.addComponent(hint2)
-				.addComponent(outputTable)
+				.addComponent(textArea)
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
 								.addComponent(driverNameLabel)
@@ -367,7 +379,7 @@ public class BtmsPage extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addComponent(hint2))
 				.addGroup(layout.createParallelGroup()
-						.addComponent(outputTable))
+						.addComponent(textArea))
 				);
 		
 		pack();
@@ -401,13 +413,26 @@ public class BtmsPage extends JFrame {
 	
 	private void sickButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// call the controller
+		String name = driverList.getItemAt(selectedDriver);
 		error = "";
 		if (selectedDriver < 0)
 			error += error + " Driver needs to be selected to toggle sick status! ";
 		error = error.trim();
 		if (error.length() == 0) {
 			// call the controller
-			driverList.removeItemAt(selectedDriver);
+			for(Driver i: btms.getDrivers()){
+				if(i.getName().equals(name)){
+					if(sickList.contains(i)){
+						sickList.remove(i);
+						break;
+					}
+					else{
+						sickList.add(i);
+						break;
+					}			
+				}
+			}
+			//driverList.removeItemAt(selectedDriver);
 			// TODO
 		}
 		refreshData();
@@ -450,12 +475,24 @@ public class BtmsPage extends JFrame {
 	
 	private void repairButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// call the controller
+		String license = busList.getItemAt(selectedRepairBus);
 		error = "";
 		if (selectedRepairBus < 0)
 			error = error + "Bus needs to be selected to toggle repair status! ";
 		error = error.trim();
 		if (error.length() == 0) {
 			// call the controller
+			for(Bus i: btms.getBuses()){
+				if(i.getLicensePlate().equals(license)){
+					if(repairList.contains(i)){
+						repairList.remove(i);
+					}
+					else{
+						repairList.add(i);
+					}	
+					break;
+				}
+			}
 			busList.removeItemAt(selectedRepairBus);
 			// TOOD
 		}
@@ -481,6 +518,7 @@ public class BtmsPage extends JFrame {
 			error = error + "Bus needs to be selected for assignment! ";
 		if (selectedRoute < 0)
 			error = error + "Route needs to be selected for assignment!";
+		if(!btms.hasDrivers()) error += "Need to have drivers to assign!";
 		java.sql.Date dateSelected = (java.sql.Date) selectedDate;
 		//Check if rws exists already
 		error = error.trim();
@@ -489,8 +527,7 @@ public class BtmsPage extends JFrame {
 		Route routeToBeAssigned = null;
 		int routeNumToBeAssigned = Integer.parseInt(routeList.getItemAt(selectedRoute));
 		for( Route i : btms.getRoutes()){
-			if (i.getRouteNumber() == routeNumToBeAssigned)
-			{
+			if (i.getRouteNumber() == routeNumToBeAssigned){
 				routeToBeAssigned = i;
 			}
 		}
@@ -498,11 +535,23 @@ public class BtmsPage extends JFrame {
 		Bus busToBeAssigned = null;
 		String licensePlate = busList.getItemAt(selectedBus);
 		for( Bus i : btms.getBuses()){
-			if (i.getLicensePlate().equals(licensePlate))
-			{
+			if (i.getLicensePlate().equals(licensePlate)){
 				busToBeAssigned = i;
 			}
-		}	
+		}
+		
+		//Find bus from bus list
+		Driver driverToBeAssigned = null;
+		String driverId = driverList.getItemAt(selectedDriver);
+		for( Driver i : btms.getDrivers()){
+			if (i.getName().equals(driverId)){
+				driverToBeAssigned = i;
+			}
+		}
+
+		if(sickList.contains(driverToBeAssigned)){
+			error += "Trying to assign a sick driver!";
+		}
 		//All inputs good to go so far
 		if (error.length() == 0) {	
 			// call the controller
@@ -525,12 +574,22 @@ public class BtmsPage extends JFrame {
 					}
 				}	  
 					
-				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRwsOnSameDay(dateSelected,busToBeAssigned,shiftType)){
+				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)){
 					rws.addBus(busToBeAssigned);
 				}
 				else{
 					error += "Shift and bus for this date already assigned!";
 				}
+				
+				/* At this point a route has a bus and a shift for a day */
+				//Time to add drivers 
+				if(!rws.getDrivers().contains(driverToBeAssigned)){
+					rws.addDriver(driverToBeAssigned);
+				}
+				else{
+					error += "Shift, Driver and bus for this date already assigned!";
+				}
+
 
 			}
 			else if(shiftType.equals("Afternoon")){
@@ -553,11 +612,18 @@ public class BtmsPage extends JFrame {
 					}
 				}	
 				
-				if(!rws.getBuses().contains(busToBeAssigned)&& !isInAnotherRwsOnSameDay(dateSelected,busToBeAssigned,shiftType)){
+				if(!rws.getBuses().contains(busToBeAssigned)&& !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)){
 						rws.addBus(busToBeAssigned);
 				}
 				else{
 						error += "Shift and bus for this date already assigned!";
+				}
+				
+				if(!rws.getDrivers().contains(driverToBeAssigned)){
+					rws.addDriver(driverToBeAssigned);
+				}
+				else{
+					error += "Shift, Driver and bus for this date already assigned!";
 				}
 			}
 			else{
@@ -578,30 +644,76 @@ public class BtmsPage extends JFrame {
 					}
 				}
 				
-				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRwsOnSameDay(dateSelected,busToBeAssigned,shiftType)){
+				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)){
 						rws.addBus(busToBeAssigned);
 				}
 				else{
 						error += "Shift and bus for this date already assigned!";
 				}
+				
+				if(!rws.getDrivers().contains(driverToBeAssigned)){
+					rws.addDriver(driverToBeAssigned);
+				}
+				else{
+					error += "Shift, Driver and bus for this date already assigned!";
+				}
 			}
 			
-			/* At this point a route has a bus and a shift for a day */
+
+			
 			
 			if(error.length()== 0)
 			{
+
+                textArea.setText("");
+				//System.out.println();
+				System.out.println("BUSES IN REPAIR");
+				System.out.println("_______________");
+				for(Bus i : repairList){
+					System.out.println(i.getLicensePlate());
+				}
+				System.out.println();
+				System.out.println("SICK DRIVERS");
+				System.out.println("_______________");
+				for(Driver i : sickList){
+					System.out.println(i.getName() + " Id: " + i.getId());
+				}
+				System.out.println();
+				System.out.println("OVERVIEW FOR NEXT THREE DAYS");
+				System.out.println("____________________________");
 				for(MorningRouteWorkShift i : btms.getMorningRouteWorkShifts()){
-					System.out.println(i.toString());
-					System.out.println(i.getBuses());
+					int k =0;
+					for(Bus j : i.getBuses()){
+						
+						System.out.println("Route: " + i.getRoute().getRouteNumber() + "\t Date: "+ i.getWorkDate() + "\t Shift: " + i.getShiftName()
+						+ "\t\t Bus:" + j.getLicensePlate() + "\t Driver: " + i.getDrivers().get(k).getName() + "\t\t ID: " + i.getDrivers().get(k).getId());
+						k++;
+						//System.out.println(i.getBuses());
+					}
+
 				}
 				for(AfternoonRouteWorkShift i : btms.getAfternoonRouteWorkShifts()){
-					System.out.println(i.toString());
-					System.out.println(i.getBuses());
+					int k =0;
+					for(Bus j : i.getBuses()){
+						
+						System.out.println("Route: " + i.getRoute().getRouteNumber() + "\t Date: "+ i.getWorkDate() + "\t Shift: \t" + i.getShiftName()
+						+ "\t Bus:" + j.getLicensePlate() + "\t Driver: \t" + i.getDrivers().get(k).getName() + "\t ID: " + i.getDrivers().get(k).getId());
+						k++;
+						//System.out.println(i.getBuses());
+					}
 				}
 				for(NightRouteWorkShift i : btms.getNightRouteWorkShifts()){
-					System.out.println(i.toString());
-					System.out.println(i.getBuses());
+					int k =0;
+					for(Bus j : i.getBuses()){
+						
+						System.out.println("Route: " + i.getRoute().getRouteNumber() + "\t Date: "+ i.getWorkDate() + "\t Shift: \t" + i.getShiftName()
+						+ "\t Bus:" + j.getLicensePlate() + "\t Driver: \t" + i.getDrivers().get(k).getName() + "\t ID: " + i.getDrivers().get(k).getId());
+						k++;
+						//System.out.println(i.getBuses());
+					};
 				}
+				
+
 			}			
 			
 		}
@@ -614,39 +726,39 @@ public class BtmsPage extends JFrame {
 		refreshData();			
 	}
 	
-	private boolean isInAnotherRwsOnSameDay(java.sql.Date Date, Bus bus, String shift){
+	private boolean isInAnotherRouteOnSameDay(java.sql.Date Date, Bus bus, String shift, Route route ){
 		if(shift.equals("Morning")){
 			for (NightRouteWorkShift rws : btms.getNightRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))&& !rws.getRoute().equals(route)){
 					 return true;
 				}	
 			}
 			for (AfternoonRouteWorkShift rws : btms.getAfternoonRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))&& !rws.getRoute().equals(route)){
 					 return true;
 				}
 			}
 		}
 		else if(shift.equals("Afternoon")){
 			for (NightRouteWorkShift rws : btms.getNightRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))&& !rws.getRoute().equals(route)){
 					 return true;
 				}	
 			}
 			for (MorningRouteWorkShift rws : btms.getMorningRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))&& !rws.getRoute().equals(route)){
 					 return true;
 				}
 			}
 		}
 		else{
 			for (AfternoonRouteWorkShift rws : btms.getAfternoonRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))&& !rws.getRoute().equals(route)){
 					 return true;
 				}	
 			}
 			for (MorningRouteWorkShift rws : btms.getMorningRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))&& !rws.getRoute().equals(route)){
 					 return true;
 				}
 			}
