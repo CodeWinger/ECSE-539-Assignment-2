@@ -68,9 +68,6 @@ public class Bus
     return wasSet;
   }
 
-  /**
-   * 1 -- * RouteShift;
-   */
   public String getLicensePlate()
   {
     return licensePlate;
@@ -106,6 +103,24 @@ public class Bus
     {
       case FUNCTIONNAL:
         setBusStatus(BusStatus.IN_REPAIR);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean busRepaired()
+  {
+    boolean wasEventProcessed = false;
+    
+    BusStatus aBusStatus = busStatus;
+    switch (aBusStatus)
+    {
+      case IN_REPAIR:
+        setBusStatus(BusStatus.FUNCTIONNAL);
         wasEventProcessed = true;
         break;
       default:

@@ -41,7 +41,7 @@ public class BTMS
 
   private BTMS()
   {
-	//this code was hand-written!
+	//warning: the following 4 lines added manually
 	Calendar calendar = Calendar.getInstance();
 	setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
 	calendar.add(Calendar.DATE, 3);
@@ -501,11 +501,12 @@ public class BTMS
     return 0;
   }
 
-  public MorningRouteWorkShift addMorningRouteWorkShift(Route aRoute, Date aWorkDate)
+  public MorningRouteWorkShift addMorningRouteWorkShift(Date aWorkDate)
   {
-	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
-	 		return null;
-    return new MorningRouteWorkShift(aRoute, aWorkDate, this);
+	//warning: manually added code
+	if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+ 		return null;
+    return new MorningRouteWorkShift(aWorkDate, this);
   }
 
   public boolean addMorningRouteWorkShift(MorningRouteWorkShift aMorningRouteWorkShift)
@@ -575,11 +576,12 @@ public class BTMS
     return 0;
   }
 
-  public AfternoonRouteWorkShift addAfternoonRouteWorkShift(Route aRoute, Date aWorkDate)
+  public AfternoonRouteWorkShift addAfternoonRouteWorkShift(Date aWorkDate)
   {
-	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
-	 		return null;
-    return new AfternoonRouteWorkShift(aRoute, aWorkDate, this);
+	//warning: manually added code
+	if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+ 		return null;
+    return new AfternoonRouteWorkShift(aWorkDate, this);
   }
 
   public boolean addAfternoonRouteWorkShift(AfternoonRouteWorkShift aAfternoonRouteWorkShift)
@@ -649,11 +651,12 @@ public class BTMS
     return 0;
   }
 
-  public NightRouteWorkShift addNightRouteWorkShift(Route aRoute, Date aWorkDate)
+  public NightRouteWorkShift addNightRouteWorkShift(Date aWorkDate)
   {
-	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
-	 		return null;
-    return new NightRouteWorkShift(aRoute, aWorkDate, this);
+	//warning: manually added code
+	if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+ 		return null;
+    return new NightRouteWorkShift(aWorkDate, this);
   }
 
   public boolean addNightRouteWorkShift(NightRouteWorkShift aNightRouteWorkShift)

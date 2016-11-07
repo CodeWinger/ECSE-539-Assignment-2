@@ -4,7 +4,7 @@
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 66 "../../../../../model.ump"
+// line 63 "../../../../../model.ump"
 public class Driver
 {
 
@@ -53,9 +53,6 @@ public class Driver
   // INTERFACE
   //------------------------
 
-  /**
-   * 1 -- * RouteShift;
-   */
   public String getName()
   {
     return name;
@@ -77,7 +74,7 @@ public class Driver
     return workStatus;
   }
 
-  public boolean drivenStrickenWithIllness()
+  public boolean driverStrickenWithIllness()
   {
     boolean wasEventProcessed = false;
     
@@ -86,6 +83,24 @@ public class Driver
     {
       case CAN_WORK:
         setWorkStatus(WorkStatus.SICK);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean driverFeelsBetter()
+  {
+    boolean wasEventProcessed = false;
+    
+    WorkStatus aWorkStatus = workStatus;
+    switch (aWorkStatus)
+    {
+      case SICK:
+        setWorkStatus(WorkStatus.CAN_WORK);
         wasEventProcessed = true;
         break;
       default:

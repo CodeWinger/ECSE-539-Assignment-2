@@ -4,7 +4,7 @@
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 86 "../../../../../model.ump"
+// line 81 "../../../../../model.ump"
 public abstract class RouteWorkShift
 {
 
@@ -15,20 +15,17 @@ public abstract class RouteWorkShift
   //RouteWorkShift Associations
   private List<Bus> buses;
   private List<Driver> drivers;
-  private Route route;
+  private List<Route> routes;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public RouteWorkShift(Route aRoute)
+  public RouteWorkShift()
   {
     buses = new ArrayList<Bus>();
     drivers = new ArrayList<Driver>();
-    if (!setRoute(aRoute))
-    {
-      throw new RuntimeException("Unable to create RouteWorkShift due to aRoute");
-    }
+    routes = new ArrayList<Route>();
   }
 
   //------------------------
@@ -95,9 +92,34 @@ public abstract class RouteWorkShift
     return index;
   }
 
-  public Route getRoute()
+  public Route getRoute(int index)
   {
-    return route;
+    Route aRoute = routes.get(index);
+    return aRoute;
+  }
+
+  public List<Route> getRoutes()
+  {
+    List<Route> newRoutes = Collections.unmodifiableList(routes);
+    return newRoutes;
+  }
+
+  public int numberOfRoutes()
+  {
+    int number = routes.size();
+    return number;
+  }
+
+  public boolean hasRoutes()
+  {
+    boolean has = routes.size() > 0;
+    return has;
+  }
+
+  public int indexOfRoute(Route aRoute)
+  {
+    int index = routes.indexOf(aRoute);
+    return index;
   }
 
   public static int minimumNumberOfBuses()
@@ -108,7 +130,7 @@ public abstract class RouteWorkShift
   public boolean addBus(Bus aBus)
   {
     boolean wasAdded = false;
-    // line 92 "../../../../../model.ump"
+    // line 87 "../../../../../model.ump"
     if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
         			return false;
     if (buses.contains(aBus)) { return false; }
@@ -196,7 +218,7 @@ public abstract class RouteWorkShift
   public boolean addDriver(Driver aDriver)
   {
     boolean wasAdded = false;
-    // line 97 "../../../../../model.ump"
+    // line 92 "../../../../../model.ump"
     if(aDriver.getWorkStatus() == ca.mcgill.ecse539.btms.model.Driver.WorkStatus.SICK)
         			return false;
     if (drivers.contains(aDriver)) { return false; }
@@ -276,15 +298,64 @@ public abstract class RouteWorkShift
     return wasAdded;
   }
 
-  public boolean setRoute(Route aNewRoute)
+  public static int minimumNumberOfRoutes()
   {
-    boolean wasSet = false;
-    if (aNewRoute != null)
+    return 0;
+  }
+
+  public boolean addRoute(Route aRoute)
+  {
+    boolean wasAdded = false;
+    if (routes.contains(aRoute)) { return false; }
+    if (routes.contains(aRoute)) { return false; }
+    if (routes.contains(aRoute)) { return false; }
+    if (routes.contains(aRoute)) { return false; }
+    routes.add(aRoute);
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeRoute(Route aRoute)
+  {
+    boolean wasRemoved = false;
+    if (routes.contains(aRoute))
     {
-      route = aNewRoute;
-      wasSet = true;
+      routes.remove(aRoute);
+      wasRemoved = true;
     }
-    return wasSet;
+    return wasRemoved;
+  }
+
+  public boolean addRouteAt(Route aRoute, int index)
+  {  
+    boolean wasAdded = false;
+    if(addRoute(aRoute))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfRoutes()) { index = numberOfRoutes() - 1; }
+      routes.remove(aRoute);
+      routes.add(index, aRoute);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveRouteAt(Route aRoute, int index)
+  {
+    boolean wasAdded = false;
+    if(routes.contains(aRoute))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfRoutes()) { index = numberOfRoutes() - 1; }
+      routes.remove(aRoute);
+      routes.add(index, aRoute);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addRouteAt(aRoute, index);
+    }
+    return wasAdded;
   }
 
   public void delete()
@@ -301,7 +372,7 @@ public abstract class RouteWorkShift
     {
       aDriver.removeRouteWorkShift(this);
     }
-    route = null;
+    routes.clear();
   }
 
 }

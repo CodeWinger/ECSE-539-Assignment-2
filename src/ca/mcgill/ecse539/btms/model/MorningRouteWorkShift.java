@@ -5,7 +5,7 @@ package ca.mcgill.ecse539.btms.model;
 import java.sql.Date;
 import java.util.*;
 
-// line 107 "../../../../../model.ump"
+// line 98 "../../../../../model.ump"
 public class MorningRouteWorkShift extends RouteWorkShift
 {
 
@@ -30,9 +30,9 @@ public class MorningRouteWorkShift extends RouteWorkShift
   // CONSTRUCTOR
   //------------------------
 
-  public MorningRouteWorkShift(Route aRoute, Date aWorkDate, BTMS aBTMS)
+  public MorningRouteWorkShift(Date aWorkDate, BTMS aBTMS)
   {
-    super(aRoute);
+    super();
     shiftName = "Morning";
     if (!setWorkDate(aWorkDate))
     {

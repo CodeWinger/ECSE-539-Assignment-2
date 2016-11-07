@@ -55,6 +55,7 @@ class Bus
   			busBreaksDown -> IN_REPAIR;
   		}
   		IN_REPAIR {
+  			busRepaired -> FUNCTIONNAL;
   		}
   }
 }
@@ -65,10 +66,10 @@ class Driver{
   
   workStatus {
   		CAN_WORK {
-  			drivenStrickenWithIllness -> SICK;
+  			driverStrickenWithIllness -> SICK;
   		} 		
   		SICK {
-  		
+  			driverFeelsBetter -> CAN_WORK;
   		}
   }
 }
@@ -81,7 +82,7 @@ class RouteWorkShift {
 	abstract;
 	* -- * Bus;
 	* -- * Driver;
-	* -> 1 Route;
+	* -> * Route;
 
 	before addBus{
 		 if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
