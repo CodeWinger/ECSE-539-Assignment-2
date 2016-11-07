@@ -85,6 +85,7 @@ public class BtmsPage extends JFrame {
 	private JLabel hint1;
 	private JLabel hint2;
     private JTextArea sickDriverDisplay = new JTextArea();
+    private JTextArea repairDisplay = new JTextArea();
 	// data elements
 	private String error = null;
 	private Integer selectedBus = -1;
@@ -97,6 +98,8 @@ public class BtmsPage extends JFrame {
 	private Integer selectedRepairBus= -1;
 	//private HashMap<Integer, Bus> drivers;
 	private Integer selectedShift= 0;
+	private JLabel sickLabel;
+	private JLabel repairLabel;
 	public BTMS btms = BTMS.getInstance();
 	
 
@@ -106,8 +109,6 @@ public class BtmsPage extends JFrame {
 		refreshData();
 	}
 
-	private ArrayList<Driver> sickList = new ArrayList<Driver>();
-	private ArrayList<Bus> repairList = new ArrayList<Bus>();
 	/** This method is called from within the constructor to initialize the form.
 	 */
 	private void initComponents() {
@@ -190,7 +191,8 @@ public class BtmsPage extends JFrame {
 		// temporary elements
 		hint1 = new JLabel();
 		hint2 = new JLabel();
-				
+		sickLabel = new JLabel();
+		repairLabel = new JLabel();
 		// global settings and listeners
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Bus Transportation Management System");
@@ -247,7 +249,8 @@ public class BtmsPage extends JFrame {
 		
 
 		hint2.setText("Daily Overview for the next Three Days");
-		
+		sickLabel.setText("Drivers Sick");
+		repairLabel.setText("Buses in Repair");
 		outputTable = new JTable();
 		dtm = new DefaultTableModel(0, 0);
 		// add header of the table
@@ -283,11 +286,13 @@ public class BtmsPage extends JFrame {
 				.addComponent(errorMessage)
 				.addComponent(horizontalLineTop)
 				.addComponent(horizontalLineMiddle1)
-				.addComponent(horizontalLineMiddle2)
 				.addComponent(horizontalLineBottom)
-				.addComponent(sickDriverDisplay)
 				.addComponent(hint2)
 				.addComponent(panel_1)
+				.addComponent(sickLabel)
+				.addComponent(sickDriverDisplay)
+				.addComponent(repairLabel)
+				.addComponent(repairDisplay)
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
 								.addComponent(driverNameLabel)
@@ -368,16 +373,19 @@ public class BtmsPage extends JFrame {
 				.addComponent(assignButton)
 				.addGroup(layout.createParallelGroup())
 				.addGroup(layout.createParallelGroup()
-						.addComponent(horizontalLineMiddle2))
-				.addGroup(layout.createParallelGroup()
-						.addComponent(sickDriverDisplay))
-				.addGroup(layout.createParallelGroup()
 						.addComponent(horizontalLineBottom))
 				.addGroup(layout.createParallelGroup()
 						.addComponent(hint2))
 				.addGroup(layout.createParallelGroup()
 						.addComponent(panel_1))
-				);
+				.addGroup(layout.createParallelGroup()
+						.addComponent(sickLabel))
+				.addGroup(layout.createParallelGroup()
+						.addComponent(sickDriverDisplay))
+				.addGroup(layout.createParallelGroup()
+						.addComponent(repairLabel))
+				.addGroup(layout.createParallelGroup()
+						.addComponent(repairDisplay)));
 		
 		pack();
 		
@@ -388,7 +396,8 @@ public class BtmsPage extends JFrame {
 		// error
 		errorMessage.setText(error);
 		if (error == null || error.length() == 0) {
-			// TODO
+			sickDriversHighlight();
+			busInRepairHighlight();
 		}
 		// this is needed because the size of the window changes depending on whether an error message is shown or not
 		pack();
@@ -648,6 +657,8 @@ public class BtmsPage extends JFrame {
 			{
 			   // debugPrint();
 			    displayData();
+				sickDriversHighlight();
+				busInRepairHighlight();
 			}			
 			
 		}		
@@ -708,9 +719,31 @@ public class BtmsPage extends JFrame {
 					}
 			}
 			
-
+		    outputTable.setDefaultRenderer(String.class, new MyRenderer());
 			//outputTable.setModel(dtm);
 			pack();
+	}
+	
+	private void sickDriversHighlight(){
+		String sickList = "Name:\t" + "ID Number:";
+		for(Driver i : btms.getDrivers()){
+			if(i.getWorkStatusFullName().equals("SICK")){
+				sickList += "\n"+i.getName() + "\t" + i.getId();
+			}
+		}
+		sickDriverDisplay.setText(sickList);
+
+	}
+	
+	private void busInRepairHighlight(){
+		String repairList = "License Number:";
+		for(Bus i : btms.getBuses()){
+			if(i.getBusStatusFullName().equals("IN_REPAIR")){
+				repairList += "\n"+ i.getLicensePlate();
+			}
+		}
+		repairDisplay.setText(repairList);
+
 	}
 	
 	

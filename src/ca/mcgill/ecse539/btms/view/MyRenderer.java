@@ -21,12 +21,12 @@ public Component getTableCellRendererComponent(JTable table,
       super.getTableCellRendererComponent(table, value,
                                           isSelected, hasFocus,
                                           row, column);
-
+	System.out.println("Here!!!!");
     // Only for specific cell
     if (row == 0 && column == 0) {
        //c.setFont(/* special font*/);
        // you may want to address isSelected here too
-    	System.out.println("Here!!!!");
+
        c.setForeground(new Color(236, 236, 236));
        c.setBackground(Color.RED);
     }
