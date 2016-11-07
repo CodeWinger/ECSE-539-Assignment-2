@@ -45,6 +45,12 @@ information regarding this issue.*/
 	 		return null;
 	}
 */
+
+	
+
+
+	
+
 }
 
 class Bus
@@ -80,19 +86,50 @@ class Route {
 
 class RouteWorkShift {
 	abstract;
-	* -- * Bus;
-	* -- * Driver;
-	* -> * Route;
+	1 -- * DriverBusRouteTuple;
 
-	before addBus{
+
+	
+}
+
+class DriverBusRouteTuple{
+ 	* -- 1 Driver;
+ 	* -- 1 Bus;
+ 	* -- 1 Route;
+ 	
+ 		before setBus{
 		 if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
     			return false;
 	}
 	
-	before addDriver{
+	before setDriver{
 		if(aDriver.getWorkStatus() == ca.mcgill.ecse539.btms.model.Driver.WorkStatus.SICK)
     			return false;
 	}
+	
+ 	
+ 	/**Warnining, could not add code to constructor, adding it manually
+ 	before DriverBusRouteTuple{
+ 	 final Date date;
+	    if (aRouteWorkShift instanceof MorningRouteWorkShift) {
+	    	date = ((MorningRouteWorkShift) aRouteWorkShift).getWorkDate();
+	    } else if ( aRouteWorkShift instanceof AfternoonRouteWorkShift) {
+	    	date = ((AfternoonRouteWorkShift) aRouteWorkShift).getWorkDate();
+	    } else if ( aRouteWorkShift instanceof NightRouteWorkShift){
+	    	date = ((NightRouteWorkShift) aRouteWorkShift).getWorkDate();
+	    } else {
+	    	date = null;
+	    }
+	    
+	    List<DriverBusRouteTuple> all = new ArrayList<DriverBusRouteTuple>();
+	    aBus.getBTMS().getMorningRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).map(all::addAll);
+	    aBus.getBTMS().getAfternoonRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).map(all::addAll);
+	    aBus.getBTMS().getNightRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).map(all::addAll);
+	    
+	    if ( all.stream().anyMatch(s -> s.route.equals(aRoute)))
+	    	throw new RuntimeException("cannot assign a bus to different route for the same day!");
+ 	}
+ 	*/
 }
 
 class MorningRouteWorkShift{

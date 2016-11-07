@@ -4,7 +4,7 @@
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 77 "../../../../../model.ump"
+// line 83 "../../../../../model.ump"
 public class Route
 {
 
@@ -23,6 +23,7 @@ public class Route
 
   //Route Associations
   private BTMS bTMS;
+  private List<DriverBusRouteTuple> driverBusRouteTuples;
 
   //------------------------
   // CONSTRUCTOR
@@ -39,6 +40,7 @@ public class Route
     {
       throw new RuntimeException("Unable to create route due to bTMS");
     }
+    driverBusRouteTuples = new ArrayList<DriverBusRouteTuple>();
   }
 
   //------------------------
@@ -81,6 +83,36 @@ public class Route
     return bTMS;
   }
 
+  public DriverBusRouteTuple getDriverBusRouteTuple(int index)
+  {
+    DriverBusRouteTuple aDriverBusRouteTuple = driverBusRouteTuples.get(index);
+    return aDriverBusRouteTuple;
+  }
+
+  public List<DriverBusRouteTuple> getDriverBusRouteTuples()
+  {
+    List<DriverBusRouteTuple> newDriverBusRouteTuples = Collections.unmodifiableList(driverBusRouteTuples);
+    return newDriverBusRouteTuples;
+  }
+
+  public int numberOfDriverBusRouteTuples()
+  {
+    int number = driverBusRouteTuples.size();
+    return number;
+  }
+
+  public boolean hasDriverBusRouteTuples()
+  {
+    boolean has = driverBusRouteTuples.size() > 0;
+    return has;
+  }
+
+  public int indexOfDriverBusRouteTuple(DriverBusRouteTuple aDriverBusRouteTuple)
+  {
+    int index = driverBusRouteTuples.indexOf(aDriverBusRouteTuple);
+    return index;
+  }
+
   public boolean setBTMS(BTMS aBTMS)
   {
     boolean wasSet = false;
@@ -100,12 +132,89 @@ public class Route
     return wasSet;
   }
 
+  public static int minimumNumberOfDriverBusRouteTuples()
+  {
+    return 0;
+  }
+
+  public DriverBusRouteTuple addDriverBusRouteTuple(Driver aDriver, Bus aBus, RouteWorkShift aRouteWorkShift)
+  {
+    return new DriverBusRouteTuple(aDriver, aBus, this, aRouteWorkShift);
+  }
+
+  public boolean addDriverBusRouteTuple(DriverBusRouteTuple aDriverBusRouteTuple)
+  {
+    boolean wasAdded = false;
+    if (driverBusRouteTuples.contains(aDriverBusRouteTuple)) { return false; }
+    Route existingRoute = aDriverBusRouteTuple.getRoute();
+    boolean isNewRoute = existingRoute != null && !this.equals(existingRoute);
+    if (isNewRoute)
+    {
+      aDriverBusRouteTuple.setRoute(this);
+    }
+    else
+    {
+      driverBusRouteTuples.add(aDriverBusRouteTuple);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeDriverBusRouteTuple(DriverBusRouteTuple aDriverBusRouteTuple)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aDriverBusRouteTuple, as it must always have a route
+    if (!this.equals(aDriverBusRouteTuple.getRoute()))
+    {
+      driverBusRouteTuples.remove(aDriverBusRouteTuple);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+
+  public boolean addDriverBusRouteTupleAt(DriverBusRouteTuple aDriverBusRouteTuple, int index)
+  {  
+    boolean wasAdded = false;
+    if(addDriverBusRouteTuple(aDriverBusRouteTuple))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfDriverBusRouteTuples()) { index = numberOfDriverBusRouteTuples() - 1; }
+      driverBusRouteTuples.remove(aDriverBusRouteTuple);
+      driverBusRouteTuples.add(index, aDriverBusRouteTuple);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveDriverBusRouteTupleAt(DriverBusRouteTuple aDriverBusRouteTuple, int index)
+  {
+    boolean wasAdded = false;
+    if(driverBusRouteTuples.contains(aDriverBusRouteTuple))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfDriverBusRouteTuples()) { index = numberOfDriverBusRouteTuples() - 1; }
+      driverBusRouteTuples.remove(aDriverBusRouteTuple);
+      driverBusRouteTuples.add(index, aDriverBusRouteTuple);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addDriverBusRouteTupleAt(aDriverBusRouteTuple, index);
+    }
+    return wasAdded;
+  }
+
   public void delete()
   {
     routesByRouteNumber.remove(getRouteNumber());
     BTMS placeholderBTMS = bTMS;
     this.bTMS = null;
     placeholderBTMS.removeRoute(this);
+    for(int i=driverBusRouteTuples.size(); i > 0; i--)
+    {
+      DriverBusRouteTuple aDriverBusRouteTuple = driverBusRouteTuples.get(i - 1);
+      aDriverBusRouteTuple.delete();
+    }
   }
 
 

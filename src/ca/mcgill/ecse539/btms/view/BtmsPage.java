@@ -28,6 +28,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import ca.mcgill.ecse539.btms.view.*;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.SqlDateModel;
@@ -193,7 +194,7 @@ public class BtmsPage extends JFrame {
 		p.put("text.month", "Month");
 		p.put("text.year", "Year");
 		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
-		assignmentDatePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+		assignmentDatePicker = new JDatePickerImpl(datePanel, null);
 		assignmentDateLabel = new JLabel();
 
 		assignButton = new JButton();

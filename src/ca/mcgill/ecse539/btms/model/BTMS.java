@@ -41,12 +41,11 @@ public class BTMS
 
   private BTMS()
   {
-	//warning: the following 4 lines added manually
-	Calendar calendar = Calendar.getInstance();
-	setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
-	calendar.add(Calendar.DATE, 3);
-	setThreeDaysAhead(new java.sql.Date(calendar.getTime().getTime()));
-		
+	  //warning manually added
+	  Calendar calendar = Calendar.getInstance();
+		setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
+		calendar.add(Calendar.DATE, 3);
+		setThreeDaysAhead(new java.sql.Date(calendar.getTime().getTime()));
     canSetCurrentDate = true;
     canSetThreeDaysAhead = true;
     buses = new ArrayList<Bus>();
@@ -503,9 +502,8 @@ public class BTMS
 
   public MorningRouteWorkShift addMorningRouteWorkShift(Date aWorkDate)
   {
-	//warning: manually added code
-	if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
- 		return null;
+	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
     return new MorningRouteWorkShift(aWorkDate, this);
   }
 
@@ -578,9 +576,8 @@ public class BTMS
 
   public AfternoonRouteWorkShift addAfternoonRouteWorkShift(Date aWorkDate)
   {
-	//warning: manually added code
-	if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
- 		return null;
+	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
     return new AfternoonRouteWorkShift(aWorkDate, this);
   }
 
@@ -653,9 +650,8 @@ public class BTMS
 
   public NightRouteWorkShift addNightRouteWorkShift(Date aWorkDate)
   {
-	//warning: manually added code
-	if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
- 		return null;
+	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
     return new NightRouteWorkShift(aWorkDate, this);
   }
 

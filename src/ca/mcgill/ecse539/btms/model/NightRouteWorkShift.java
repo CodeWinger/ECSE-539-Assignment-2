@@ -5,7 +5,7 @@ package ca.mcgill.ecse539.btms.model;
 import java.sql.Date;
 import java.util.*;
 
-// line 112 "../../../../../model.ump"
+// line 151 "../../../../../model.ump"
 public class NightRouteWorkShift extends RouteWorkShift
 {
 

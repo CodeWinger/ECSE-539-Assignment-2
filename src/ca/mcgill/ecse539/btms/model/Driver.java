@@ -4,7 +4,7 @@
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 63 "../../../../../model.ump"
+// line 69 "../../../../../model.ump"
 public class Driver
 {
 
@@ -30,7 +30,7 @@ public class Driver
 
   //Driver Associations
   private BTMS bTMS;
-  private List<RouteWorkShift> routeWorkShifts;
+  private List<DriverBusRouteTuple> driverBusRouteTuples;
 
   //------------------------
   // CONSTRUCTOR
@@ -45,7 +45,7 @@ public class Driver
     {
       throw new RuntimeException("Unable to create driver due to bTMS");
     }
-    routeWorkShifts = new ArrayList<RouteWorkShift>();
+    driverBusRouteTuples = new ArrayList<DriverBusRouteTuple>();
     setWorkStatus(WorkStatus.CAN_WORK);
   }
 
@@ -120,33 +120,33 @@ public class Driver
     return bTMS;
   }
 
-  public RouteWorkShift getRouteWorkShift(int index)
+  public DriverBusRouteTuple getDriverBusRouteTuple(int index)
   {
-    RouteWorkShift aRouteWorkShift = routeWorkShifts.get(index);
-    return aRouteWorkShift;
+    DriverBusRouteTuple aDriverBusRouteTuple = driverBusRouteTuples.get(index);
+    return aDriverBusRouteTuple;
   }
 
-  public List<RouteWorkShift> getRouteWorkShifts()
+  public List<DriverBusRouteTuple> getDriverBusRouteTuples()
   {
-    List<RouteWorkShift> newRouteWorkShifts = Collections.unmodifiableList(routeWorkShifts);
-    return newRouteWorkShifts;
+    List<DriverBusRouteTuple> newDriverBusRouteTuples = Collections.unmodifiableList(driverBusRouteTuples);
+    return newDriverBusRouteTuples;
   }
 
-  public int numberOfRouteWorkShifts()
+  public int numberOfDriverBusRouteTuples()
   {
-    int number = routeWorkShifts.size();
+    int number = driverBusRouteTuples.size();
     return number;
   }
 
-  public boolean hasRouteWorkShifts()
+  public boolean hasDriverBusRouteTuples()
   {
-    boolean has = routeWorkShifts.size() > 0;
+    boolean has = driverBusRouteTuples.size() > 0;
     return has;
   }
 
-  public int indexOfRouteWorkShift(RouteWorkShift aRouteWorkShift)
+  public int indexOfDriverBusRouteTuple(DriverBusRouteTuple aDriverBusRouteTuple)
   {
-    int index = routeWorkShifts.indexOf(aRouteWorkShift);
+    int index = driverBusRouteTuples.indexOf(aDriverBusRouteTuple);
     return index;
   }
 
@@ -169,84 +169,74 @@ public class Driver
     return wasSet;
   }
 
-  public static int minimumNumberOfRouteWorkShifts()
+  public static int minimumNumberOfDriverBusRouteTuples()
   {
     return 0;
   }
 
-  public boolean addRouteWorkShift(RouteWorkShift aRouteWorkShift)
+  public DriverBusRouteTuple addDriverBusRouteTuple(Bus aBus, Route aRoute, RouteWorkShift aRouteWorkShift)
+  {
+    return new DriverBusRouteTuple(this, aBus, aRoute, aRouteWorkShift);
+  }
+
+  public boolean addDriverBusRouteTuple(DriverBusRouteTuple aDriverBusRouteTuple)
   {
     boolean wasAdded = false;
-    if (routeWorkShifts.contains(aRouteWorkShift)) { return false; }
-    routeWorkShifts.add(aRouteWorkShift);
-    if (aRouteWorkShift.indexOfDriver(this) != -1)
+    if (driverBusRouteTuples.contains(aDriverBusRouteTuple)) { return false; }
+    Driver existingDriver = aDriverBusRouteTuple.getDriver();
+    boolean isNewDriver = existingDriver != null && !this.equals(existingDriver);
+    if (isNewDriver)
     {
-      wasAdded = true;
+      aDriverBusRouteTuple.setDriver(this);
     }
     else
     {
-      wasAdded = aRouteWorkShift.addDriver(this);
-      if (!wasAdded)
-      {
-        routeWorkShifts.remove(aRouteWorkShift);
-      }
+      driverBusRouteTuples.add(aDriverBusRouteTuple);
     }
+    wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeRouteWorkShift(RouteWorkShift aRouteWorkShift)
+  public boolean removeDriverBusRouteTuple(DriverBusRouteTuple aDriverBusRouteTuple)
   {
     boolean wasRemoved = false;
-    if (!routeWorkShifts.contains(aRouteWorkShift))
+    //Unable to remove aDriverBusRouteTuple, as it must always have a driver
+    if (!this.equals(aDriverBusRouteTuple.getDriver()))
     {
-      return wasRemoved;
-    }
-
-    int oldIndex = routeWorkShifts.indexOf(aRouteWorkShift);
-    routeWorkShifts.remove(oldIndex);
-    if (aRouteWorkShift.indexOfDriver(this) == -1)
-    {
+      driverBusRouteTuples.remove(aDriverBusRouteTuple);
       wasRemoved = true;
-    }
-    else
-    {
-      wasRemoved = aRouteWorkShift.removeDriver(this);
-      if (!wasRemoved)
-      {
-        routeWorkShifts.add(oldIndex,aRouteWorkShift);
-      }
     }
     return wasRemoved;
   }
 
-  public boolean addRouteWorkShiftAt(RouteWorkShift aRouteWorkShift, int index)
+  public boolean addDriverBusRouteTupleAt(DriverBusRouteTuple aDriverBusRouteTuple, int index)
   {  
     boolean wasAdded = false;
-    if(addRouteWorkShift(aRouteWorkShift))
+    if(addDriverBusRouteTuple(aDriverBusRouteTuple))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfRouteWorkShifts()) { index = numberOfRouteWorkShifts() - 1; }
-      routeWorkShifts.remove(aRouteWorkShift);
-      routeWorkShifts.add(index, aRouteWorkShift);
+      if(index > numberOfDriverBusRouteTuples()) { index = numberOfDriverBusRouteTuples() - 1; }
+      driverBusRouteTuples.remove(aDriverBusRouteTuple);
+      driverBusRouteTuples.add(index, aDriverBusRouteTuple);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveRouteWorkShiftAt(RouteWorkShift aRouteWorkShift, int index)
+  public boolean addOrMoveDriverBusRouteTupleAt(DriverBusRouteTuple aDriverBusRouteTuple, int index)
   {
     boolean wasAdded = false;
-    if(routeWorkShifts.contains(aRouteWorkShift))
+    if(driverBusRouteTuples.contains(aDriverBusRouteTuple))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfRouteWorkShifts()) { index = numberOfRouteWorkShifts() - 1; }
-      routeWorkShifts.remove(aRouteWorkShift);
-      routeWorkShifts.add(index, aRouteWorkShift);
+      if(index > numberOfDriverBusRouteTuples()) { index = numberOfDriverBusRouteTuples() - 1; }
+      driverBusRouteTuples.remove(aDriverBusRouteTuple);
+      driverBusRouteTuples.add(index, aDriverBusRouteTuple);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addRouteWorkShiftAt(aRouteWorkShift, index);
+      wasAdded = addDriverBusRouteTupleAt(aDriverBusRouteTuple, index);
     }
     return wasAdded;
   }
@@ -256,11 +246,10 @@ public class Driver
     BTMS placeholderBTMS = bTMS;
     this.bTMS = null;
     placeholderBTMS.removeDriver(this);
-    ArrayList<RouteWorkShift> copyOfRouteWorkShifts = new ArrayList<RouteWorkShift>(routeWorkShifts);
-    routeWorkShifts.clear();
-    for(RouteWorkShift aRouteWorkShift : copyOfRouteWorkShifts)
+    for(int i=driverBusRouteTuples.size(); i > 0; i--)
     {
-      aRouteWorkShift.removeDriver(this);
+      DriverBusRouteTuple aDriverBusRouteTuple = driverBusRouteTuples.get(i - 1);
+      aDriverBusRouteTuple.delete();
     }
   }
 
