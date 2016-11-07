@@ -37,6 +37,7 @@ import ca.mcgill.ecse539.btms.model.AfternoonRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.BTMS;
 import ca.mcgill.ecse539.btms.model.Bus;
 import ca.mcgill.ecse539.btms.model.Driver;
+import ca.mcgill.ecse539.btms.model.DriverBusRouteTuple;
 import ca.mcgill.ecse539.btms.model.MorningRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.NightRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.Route;
@@ -194,7 +195,7 @@ public class BtmsPage extends JFrame {
 		p.put("text.month", "Month");
 		p.put("text.year", "Year");
 		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
-		assignmentDatePicker = new JDatePickerImpl(datePanel, null);
+		assignmentDatePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
 		assignmentDateLabel = new JLabel();
 
 		assignButton = new JButton();
@@ -560,13 +561,14 @@ public class BtmsPage extends JFrame {
 			}
 		}
 		//Find bus from bus list
-		Bus busToBeAssigned = null;
+		Bus temp = null;
 		String licensePlate = busList.getItemAt(selectedBus);
 		for( Bus i : btms.getBuses()){
 			if (i.getLicensePlate().equals(licensePlate)){
-				busToBeAssigned = i;
+				temp = i;
 			}
 		}
+		final Bus busToBeAssigned = temp;
 		
 		//Find bus from bus list
 		Driver driverToBeAssigned = null;
@@ -599,20 +601,16 @@ public class BtmsPage extends JFrame {
 					}
 				}  
 						
-				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)
-						&& !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
+				if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					if(!driverToBeAssigned.getWorkStatusFullName().contentEquals("SICK")){
-						rws.addRoute(routeToBeAssigned);
-						rws.addDriver(driverToBeAssigned);
-						rws.addBus(busToBeAssigned);
+						rws.addDriverBusRouteTuple(driverToBeAssigned, busToBeAssigned, routeToBeAssigned, btms);
 					}
 					else{
 						error += "Cannot Assign a sick driver!";
 					}
 				    
 				}
-				else if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)
-						&& !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
+				else if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					error += "Cannot Assign a broken bus!";
 				}
 				else{
@@ -636,20 +634,16 @@ public class BtmsPage extends JFrame {
 					}
 				}  
 						
-				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)
-						&& !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
+				if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned))&& !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					if(!driverToBeAssigned.getWorkStatusFullName().contentEquals("SICK")){
-						rws.addRoute(routeToBeAssigned);
-						rws.addDriver(driverToBeAssigned);
-						rws.addBus(busToBeAssigned);
+						rws.addDriverBusRouteTuple(driverToBeAssigned, busToBeAssigned, routeToBeAssigned, btms);
 					}
 					else{
 						error += "Cannot Assign a sick driver!";
 					}
 				    
 				}
-				else if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)
-						&& !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
+				else if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					error += "Cannot Assign a broken bus!";
 				}
 				else{
@@ -671,20 +665,16 @@ public class BtmsPage extends JFrame {
 						}
 					}
 				}  
-				if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)
-						&& !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
+				if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					if(!driverToBeAssigned.getWorkStatusFullName().contentEquals("SICK")){
-						rws.addRoute(routeToBeAssigned);
-						rws.addDriver(driverToBeAssigned);
-						rws.addBus(busToBeAssigned);
+						rws.addDriverBusRouteTuple(driverToBeAssigned, busToBeAssigned, routeToBeAssigned, btms);
 					}
 					else{
 						error += "Cannot Assign a sick driver!";
 					}
 				    
 				}
-				else if(!rws.getBuses().contains(busToBeAssigned) && !isInAnotherRouteOnSameDay(dateSelected,busToBeAssigned,shiftType,routeToBeAssigned)
-						&& !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
+				else if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					error += "Cannot Assign a broken bus!";
 				}
 				else{
@@ -717,29 +707,42 @@ public class BtmsPage extends JFrame {
 			outputTable.setModel(dtm);
 
 			
-			for(MorningRouteWorkShift rws : btms.getMorningRouteWorkShifts()){
-				for(Route r : rws.getRoutes()){
-					System.out.println("*******************************");
-					int l =0;
-					for(Bus k : rws.getBuses()){
-						String routeNumber = "" + r.getRouteNumber();
-						String date = "" + rws.getWorkDate();
-						String shift = "" + rws.getShiftName();
-						String busLicense = "" + k.getLicensePlate();
-						String driverName = "" + rws.getDrivers().get(l).getName();
-						String driverIdNum = "" + rws.getDrivers().get(l).getId();
+			for(MorningRouteWorkShift i : btms.getMorningRouteWorkShifts()){
+				for(DriverBusRouteTuple j : i.getDriverBusRouteTuples()){
+						String routeNumber = "" + j.getRoute().getRouteNumber();
+						String date = "" + i.getWorkDate();
+						String shift = "" + i.getShiftName();
+						String busLicense = "" + j.getBus().getLicensePlate();
+						String driverName = "" + j.getDriver().getName();
+						String driverIdNum = "" + j.getDriver().getName();
 						dtm.addRow(new Object[] {routeNumber, date, shift,busLicense, driverName, driverIdNum});
-						l++;
+				}
+			}		
+			for(AfternoonRouteWorkShift i : btms.getAfternoonRouteWorkShifts()){
+				for(DriverBusRouteTuple j : i.getDriverBusRouteTuples()){
+						String routeNumber = "" + j.getRoute().getRouteNumber();
+						String date = "" + i.getWorkDate();
+						String shift = "" + i.getShiftName();
+						String busLicense = "" + j.getBus().getLicensePlate();
+						String driverName = "" + j.getDriver().getName();
+						String driverIdNum = "" + j.getDriver().getName();
+						dtm.addRow(new Object[] {routeNumber, date, shift,busLicense, driverName, driverIdNum});
 				}
 			}
-				
-				
+			for(NightRouteWorkShift i : btms.getNightRouteWorkShifts()){
+				for(DriverBusRouteTuple j : i.getDriverBusRouteTuples()){
+						String routeNumber = "" + j.getRoute().getRouteNumber();
+						String date = "" + i.getWorkDate();
+						String shift = "" + i.getShiftName();
+						String busLicense = "" + j.getBus().getLicensePlate();
+						String driverName = "" + j.getDriver().getName();
+						String driverIdNum = "" + j.getDriver().getName();
+						dtm.addRow(new Object[] {routeNumber, date, shift,busLicense, driverName, driverIdNum});
+				}
 			}
-
 					
 
 			
-		    outputTable.setDefaultRenderer(String.class, new MyRenderer());
 			//outputTable.setModel(dtm);
 			pack();
 	}
@@ -768,46 +771,46 @@ public class BtmsPage extends JFrame {
 	
 	
 	
-	private boolean isInAnotherRouteOnSameDay(java.sql.Date Date, Bus bus, String shift, Route route ){
-		if(shift.equals("Morning")){
-			for (NightRouteWorkShift rws : btms.getNightRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
-					 return true;
-				}	
-			}
-			for (AfternoonRouteWorkShift rws : btms.getAfternoonRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
-					 return true;
-				}
-			}
-		}
-		else if(shift.equals("Afternoon")){
-			for (NightRouteWorkShift rws : btms.getNightRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
-					 return true;
-				}	
-			}
-			for (MorningRouteWorkShift rws : btms.getMorningRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
-					 return true;
-				}
-			}
-		}
-		else{
-			for (AfternoonRouteWorkShift rws : btms.getAfternoonRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
-					 return true;
-				}	
-			}
-			for (MorningRouteWorkShift rws : btms.getMorningRouteWorkShifts()){
-				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
-					 return true;
-				}
-			}
-		}
-
-		return false;
-	}
+//	private boolean isInAnotherRouteOnSameDay(java.sql.Date Date, Bus bus, String shift, Route route ){
+//		if(shift.equals("Morning")){
+//			for (NightRouteWorkShift rws : btms.getNightRouteWorkShifts()){
+//				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+//					 return true;
+//				}	
+//			}
+//			for (AfternoonRouteWorkShift rws : btms.getAfternoonRouteWorkShifts()){
+//				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+//					 return true;
+//				}
+//			}
+//		}
+//		else if(shift.equals("Afternoon")){
+//			for (NightRouteWorkShift rws : btms.getNightRouteWorkShifts()){
+//				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+//					 return true;
+//				}	
+//			}
+//			for (MorningRouteWorkShift rws : btms.getMorningRouteWorkShifts()){
+//				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+//					 return true;
+//				}
+//			}
+//		}
+//		else{
+//			for (AfternoonRouteWorkShift rws : btms.getAfternoonRouteWorkShifts()){
+//				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+//					 return true;
+//				}	
+//			}
+//			for (MorningRouteWorkShift rws : btms.getMorningRouteWorkShifts()){
+//				if(rws.getWorkDate().equals(Date) && (rws.getBuses().contains(bus))){
+//					 return true;
+//				}
+//			}
+//		}
+//
+//		return false;
+//	}
 	
 
 	private void debugPrint(){
