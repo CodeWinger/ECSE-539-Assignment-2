@@ -7,7 +7,9 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-// line 104 "../../../../../model.ump"
+
+
+// line 96 "../../../../../model.ump"
 public class DriverBusRouteTuple
 {
 
@@ -19,15 +21,15 @@ public class DriverBusRouteTuple
   private Driver driver;
   private Bus bus;
   private Route route;
+  private BTMS bTMS;
   private RouteWorkShift routeWorkShift;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public DriverBusRouteTuple(Driver aDriver, Bus aBus, Route aRoute, RouteWorkShift aRouteWorkShift)
+  public DriverBusRouteTuple(Driver aDriver, Bus aBus, Route aRoute, BTMS aBTMS, RouteWorkShift aRouteWorkShift)
   {
-	  //warning manually added code
 	  final Date date;
 	    if (aRouteWorkShift instanceof MorningRouteWorkShift) {
 	    	date = ((MorningRouteWorkShift) aRouteWorkShift).getWorkDate();
@@ -61,6 +63,11 @@ public class DriverBusRouteTuple
     {
       throw new RuntimeException("Unable to create driverBusRouteTuple due to route");
     }
+    boolean didAddBTMS = setBTMS(aBTMS);
+    if (!didAddBTMS)
+    {
+      throw new RuntimeException("Unable to create driverBusRouteTuple due to bTMS");
+    }
     boolean didAddRouteWorkShift = setRouteWorkShift(aRouteWorkShift);
     if (!didAddRouteWorkShift)
     {
@@ -87,6 +94,11 @@ public class DriverBusRouteTuple
     return route;
   }
 
+  public BTMS getBTMS()
+  {
+    return bTMS;
+  }
+
   public RouteWorkShift getRouteWorkShift()
   {
     return routeWorkShift;
@@ -94,9 +106,10 @@ public class DriverBusRouteTuple
 
   public boolean setDriver(Driver aDriver)
   {
-	  if(aDriver.getWorkStatus() == ca.mcgill.ecse539.btms.model.Driver.WorkStatus.SICK)
-			return false;
     boolean wasSet = false;
+    // line 106 "../../../../../model.ump"
+    if(aDriver.getWorkStatus() == ca.mcgill.ecse539.btms.model.Driver.WorkStatus.SICK)
+        			return false;
     if (aDriver == null)
     {
       return wasSet;
@@ -115,10 +128,10 @@ public class DriverBusRouteTuple
 
   public boolean setBus(Bus aBus)
   {
-	  if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
-			return false;
-	  
     boolean wasSet = false;
+    // line 101 "../../../../../model.ump"
+    if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
+        			return false;
     if (aBus == null)
     {
       return wasSet;
@@ -154,6 +167,25 @@ public class DriverBusRouteTuple
     return wasSet;
   }
 
+  public boolean setBTMS(BTMS aBTMS)
+  {
+    boolean wasSet = false;
+    if (aBTMS == null)
+    {
+      return wasSet;
+    }
+
+    BTMS existingBTMS = bTMS;
+    bTMS = aBTMS;
+    if (existingBTMS != null && !existingBTMS.equals(aBTMS))
+    {
+      existingBTMS.removeDriverBusRouteTuple(this);
+    }
+    bTMS.addDriverBusRouteTuple(this);
+    wasSet = true;
+    return wasSet;
+  }
+
   public boolean setRouteWorkShift(RouteWorkShift aRouteWorkShift)
   {
     boolean wasSet = false;
@@ -184,6 +216,9 @@ public class DriverBusRouteTuple
     Route placeholderRoute = route;
     this.route = null;
     placeholderRoute.removeDriverBusRouteTuple(this);
+    BTMS placeholderBTMS = bTMS;
+    this.bTMS = null;
+    placeholderBTMS.removeDriverBusRouteTuple(this);
     RouteWorkShift placeholderRouteWorkShift = routeWorkShift;
     this.routeWorkShift = null;
     placeholderRouteWorkShift.removeDriverBusRouteTuple(this);

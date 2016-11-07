@@ -4,7 +4,7 @@
 package ca.mcgill.ecse539.btms.model;
 import java.util.*;
 
-// line 87 "../../../../../model.ump"
+// line 88 "../../../../../model.ump"
 public abstract class RouteWorkShift
 {
 
@@ -63,9 +63,9 @@ public abstract class RouteWorkShift
     return 0;
   }
 
-  public DriverBusRouteTuple addDriverBusRouteTuple(Driver aDriver, Bus aBus, Route aRoute)
+  public DriverBusRouteTuple addDriverBusRouteTuple(Driver aDriver, Bus aBus, Route aRoute, BTMS aBTMS)
   {
-    return new DriverBusRouteTuple(aDriver, aBus, aRoute, this);
+    return new DriverBusRouteTuple(aDriver, aBus, aRoute, aBTMS, this);
   }
 
   public boolean addDriverBusRouteTuple(DriverBusRouteTuple aDriverBusRouteTuple)

@@ -8,6 +8,7 @@ singleton;
 1 <@>- * MorningRouteWorkShift;
 1 <@>- * AfternoonRouteWorkShift;
 1 <@>- * NightRouteWorkShift;
+1 <@>- * DriverBusRouteTuple;
  
  lazy immutable Date currentDate;
  lazy immutable Date threeDaysAhead;
