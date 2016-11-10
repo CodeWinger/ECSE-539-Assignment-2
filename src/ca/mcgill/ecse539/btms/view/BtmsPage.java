@@ -42,6 +42,7 @@ import ca.mcgill.ecse539.btms.model.MorningRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.NightRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.Route;
 import ca.mcgill.ecse539.btms.model.RouteWorkShift;
+import ca.mcgill.ecse539.btms.persistence.PersistenceXStream;
 
 
 public class BtmsPage extends JFrame {
@@ -106,7 +107,7 @@ public class BtmsPage extends JFrame {
 	private JLabel sickLabel;
 	private JLabel repairLabel;
 	public BTMS btms = BTMS.getInstance();
-	
+
 
 	/** Creates new form EventRegistrationPage */
 	public BtmsPage() {
@@ -117,6 +118,7 @@ public class BtmsPage extends JFrame {
 	/** This method is called from within the constructor to initialize the form.
 	 */
 	private void initComponents() {
+		PersistenceXStream.saveToXMLwithXStream(btms);
 		// elements for error message
 		errorMessage = new JLabel();
 		errorMessage.setForeground(Color.RED);
@@ -284,7 +286,7 @@ public class BtmsPage extends JFrame {
 	    panel_1.setLayout(new BorderLayout());
 	    panel_1.add(outputTable.getTableHeader(), BorderLayout.NORTH);
 	    panel_1.add(outputTable, BorderLayout.CENTER);
-	     
+
 
 		// horizontal line elements
 		JSeparator horizontalLineTop = new JSeparator();
@@ -433,6 +435,7 @@ public class BtmsPage extends JFrame {
 	        driverList.addItem(driverNameTextField.getText()); 
 	        driverNotSickList.addItem(driverNameTextField.getText()); 
 	        btms.addDriver(driverNameTextField.getText());
+			PersistenceXStream.saveToXMLwithXStream(btms);
 		}
 
 		// update visuals
@@ -474,6 +477,7 @@ public class BtmsPage extends JFrame {
 		{
 		  routeList.addItem(routeNumberTextField.getText());
 		  btms.addRoute(Integer.parseInt(routeNumberTextField.getText()));
+		  PersistenceXStream.saveToXMLwithXStream(btms);
 		}
 		else
 		{
@@ -492,6 +496,7 @@ public class BtmsPage extends JFrame {
 			busList.addItem(busLicencePlateTextField.getText());
 			busRepairList.addItem(busLicencePlateTextField.getText());
 			btms.addBus(busLicencePlateTextField.getText());
+			PersistenceXStream.saveToXMLwithXStream(btms);
 		}
 		else
 		{
@@ -682,9 +687,12 @@ public class BtmsPage extends JFrame {
 				}
 			}
 			
+			
+			
 			//Ready To display
 			if(error.length()== 0)
 			{
+				PersistenceXStream.saveToXMLwithXStream(btms);
 			    //debugPrint();
 			    displayData();
 			}			

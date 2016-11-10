@@ -1,0 +1,11 @@
+<btms id="1">
+  <buses id="2"/>
+  <routes id="3"/>
+  <drivers id="4"/>
+  <morningRouteWorkShifts id="5"/>
+  <afternoonRouteWorkShifts id="6"/>
+  <nightRouteWorkShifts id="7"/>
+  <driverBusRouteTuples id="8"/>
+  <canSetCurrentDate>true</canSetCurrentDate>
+  <canSetThreeDaysAhead>true</canSetThreeDaysAhead>
+</btms>

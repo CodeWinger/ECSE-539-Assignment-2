@@ -1,0 +1,19 @@
+<ca.mcgill.ecse539.btms.model.BTMS id="1">
+  <buses id="2"/>
+  <routes id="3"/>
+  <drivers id="4">
+    <ca.mcgill.ecse539.btms.model.Driver id="5">
+      <name>Razi</name>
+      <id>1</id>
+      <workStatus>CAN_WORK</workStatus>
+      <bTMS reference="1"/>
+      <driverBusRouteTuples id="6"/>
+    </ca.mcgill.ecse539.btms.model.Driver>
+  </drivers>
+  <morningRouteWorkShifts id="7"/>
+  <afternoonRouteWorkShifts id="8"/>
+  <nightRouteWorkShifts id="9"/>
+  <driverBusRouteTuples id="10"/>
+  <canSetCurrentDate>true</canSetCurrentDate>
+  <canSetThreeDaysAhead>true</canSetThreeDaysAhead>
+</ca.mcgill.ecse539.btms.model.BTMS>
