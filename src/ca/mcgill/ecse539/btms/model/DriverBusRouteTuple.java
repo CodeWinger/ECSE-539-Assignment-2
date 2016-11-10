@@ -7,9 +7,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
-// line 96 "../../../../../model.ump"
+// line 94 "../../../../../model.ump"
 public class DriverBusRouteTuple
 {
 
@@ -30,24 +28,26 @@ public class DriverBusRouteTuple
 
   public DriverBusRouteTuple(Driver aDriver, Bus aBus, Route aRoute, BTMS aBTMS, RouteWorkShift aRouteWorkShift)
   {
-	  final Date date;
-	    if (aRouteWorkShift instanceof MorningRouteWorkShift) {
-	    	date = ((MorningRouteWorkShift) aRouteWorkShift).getWorkDate();
-	    } else if ( aRouteWorkShift instanceof AfternoonRouteWorkShift) {
-	    	date = ((AfternoonRouteWorkShift) aRouteWorkShift).getWorkDate();
-	    } else if ( aRouteWorkShift instanceof NightRouteWorkShift){
-	    	date = ((NightRouteWorkShift) aRouteWorkShift).getWorkDate();
-	    } else {
-	    	date = null;
-	    }
-	    
-	    List<DriverBusRouteTuple> all = new ArrayList<DriverBusRouteTuple>();
-	    aBus.getBTMS().getMorningRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).map(all::addAll);
-	    aBus.getBTMS().getAfternoonRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).map(all::addAll);
-	    aBus.getBTMS().getNightRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).map(all::addAll);
-	    
-	    if ( all.stream().anyMatch(s -> s.route.equals(aRoute)))
-	    	throw new RuntimeException("cannot assign a bus to different route for the same day!");
+    // line 109 "../../../../../model.ump"
+    final Date date;
+    	    if (aRouteWorkShift instanceof MorningRouteWorkShift) {
+    	    	date = ((MorningRouteWorkShift) aRouteWorkShift).getWorkDate();
+    	    } else if ( aRouteWorkShift instanceof AfternoonRouteWorkShift) {
+    	    	date = ((AfternoonRouteWorkShift) aRouteWorkShift).getWorkDate();
+    	    } else if ( aRouteWorkShift instanceof NightRouteWorkShift){
+    	    	date = ((NightRouteWorkShift) aRouteWorkShift).getWorkDate();
+    	    } else {
+    	    	date = null;
+    	    }
+    	    
+    	    List<DriverBusRouteTuple> assignmentsForGivenDay = new ArrayList<DriverBusRouteTuple>();
+    	    aBTMS.getAfternoonRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).forEach(assignmentsForGivenDay::addAll);
+    	    aBTMS.getMorningRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).forEach(assignmentsForGivenDay::addAll);
+    	    aBTMS.getNightRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).forEach(assignmentsForGivenDay::addAll);
+    	    
+    	    if ( assignmentsForGivenDay.stream().anyMatch(a -> a.getRoute().getRouteNumber() != aRoute.getRouteNumber())) {
+    	    	throw new RuntimeException("cannot assign a bus to different route for the same day!");
+    	    }
     boolean didAddDriver = setDriver(aDriver);
     if (!didAddDriver)
     {
@@ -107,7 +107,7 @@ public class DriverBusRouteTuple
   public boolean setDriver(Driver aDriver)
   {
     boolean wasSet = false;
-    // line 106 "../../../../../model.ump"
+    // line 104 "../../../../../model.ump"
     if(aDriver.getWorkStatus() == ca.mcgill.ecse539.btms.model.Driver.WorkStatus.SICK)
         			return false;
     if (aDriver == null)
@@ -129,7 +129,7 @@ public class DriverBusRouteTuple
   public boolean setBus(Bus aBus)
   {
     boolean wasSet = false;
-    // line 101 "../../../../../model.ump"
+    // line 99 "../../../../../model.ump"
     if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
         			return false;
     if (aBus == null)

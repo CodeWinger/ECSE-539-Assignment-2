@@ -42,10 +42,11 @@ public class BTMS
 
   private BTMS()
   {
-	  Calendar calendar = Calendar.getInstance();
-		setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
-		calendar.add(Calendar.DATE, 3);
-		setThreeDaysAhead(new java.sql.Date(calendar.getTime().getTime()));
+    // line 45 "../../../../../model.ump"
+    Calendar calendar = Calendar.getInstance();
+    	setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
+    	calendar.add(Calendar.DATE, 3);
+    	setThreeDaysAhead(new java.sql.Date(calendar.getTime().getTime()));
     canSetCurrentDate = true;
     canSetThreeDaysAhead = true;
     buses = new ArrayList<Bus>();
