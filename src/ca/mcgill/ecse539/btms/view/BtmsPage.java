@@ -442,7 +442,7 @@ public class BtmsPage extends JFrame {
 		// call the controller
 		error = "";
 		// TODO
-		if(!driverNameTextField.getText().equals(""))
+		if(!driverNameTextField.getText().equals("") && (((DefaultComboBoxModel) routeList.getModel()).getIndexOf(routeNumberTextField.getText()) == -1))
 		{
 	        driverList.addItem(driverNameTextField.getText()); 
 	        driverNotSickList.addItem(driverNameTextField.getText()); 
@@ -709,7 +709,8 @@ public class BtmsPage extends JFrame {
 			{
 				PersistenceObjectStream.serialize(btms);
 			    //debugPrint();
-			    displayData();
+			    //displayData();
+				refreshData();
 			}			
 			
 		}		
