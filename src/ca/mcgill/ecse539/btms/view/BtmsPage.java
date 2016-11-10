@@ -140,7 +140,9 @@ public class BtmsPage extends JFrame {
 		        selectedDriver = cb.getSelectedIndex();
 			}
 		});
-		driverNotSickList = new JComboBox<String>(new String[0]);
+		ArrayList<String> temp = new ArrayList<String>();
+		test = (String[]) btms.getDrivers().stream().map(d -> d.getName()).collect(Collectors.toList()).toArray(new String[0]);
+		driverNotSickList = new JComboBox<String>(test);
 		driverNotSickList.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 		        JComboBox<String> cb = (JComboBox<String>) evt.getSource();
@@ -159,7 +161,8 @@ public class BtmsPage extends JFrame {
 		busLicencePlateTextField = new JTextField();
 		busLicencePlateLabel = new JLabel();
 		addBusButton = new JButton();
-		busRepairList = new JComboBox<String>(new String[0]);
+		test = (String[]) btms.getBuses().stream().map(d -> d.getLicensePlate()).collect(Collectors.toList()).toArray(new String[0]);
+		busRepairList = new JComboBox<String>(test);
 		busRepairList.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 		        JComboBox<String> cb = (JComboBox<String>) evt.getSource();
@@ -170,7 +173,8 @@ public class BtmsPage extends JFrame {
 		repairButton = new JButton();
 		
 		// elements for bus assignment
-		busList = new JComboBox<String>(new String[0]);
+		test = (String[]) btms.getBuses().stream().map(d -> d.getLicensePlate()).collect(Collectors.toList()).toArray(new String[0]);
+		busList = new JComboBox<String>(test);
 		busList.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 		        JComboBox<String> cb = (JComboBox<String>) evt.getSource();
@@ -178,7 +182,8 @@ public class BtmsPage extends JFrame {
 			}
 		});
 		busLabel = new JLabel();
-		routeList = new JComboBox<String>(new String[0]);
+		test = (String[]) btms.getRoutes().stream().map(d -> new Integer(d.getRouteNumber()).toString()).collect(Collectors.toList()).toArray(new String[0]);
+		routeList = new JComboBox<String>(test);
 		routeList.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 		        JComboBox<String> cb = (JComboBox<String>) evt.getSource();
@@ -417,7 +422,7 @@ public class BtmsPage extends JFrame {
 						.addComponent(repairDisplay)));
 		
 		pack();
-		
+
 	}
 
 	private void refreshData() {
@@ -427,6 +432,7 @@ public class BtmsPage extends JFrame {
 		if (error == null || error.length() == 0) {
 			sickDriversHighlight();
 			busInRepairHighlight();
+			displayData();
 		}
 		// this is needed because the size of the window changes depending on whether an error message is shown or not
 		pack();
@@ -472,6 +478,7 @@ public class BtmsPage extends JFrame {
 			}
 			//driverList.removeItemAt(selectedDriver);
 			// TODO
+			PersistenceObjectStream.serialize(btms);
 		}
 		refreshData();
 	}
@@ -484,7 +491,7 @@ public class BtmsPage extends JFrame {
 		{
 		  routeList.addItem(routeNumberTextField.getText());
 		  btms.addRoute(Integer.parseInt(routeNumberTextField.getText()));
-		  PersistenceXStream.saveToXMLwithXStream(btms);
+		  PersistenceObjectStream.serialize(btms);
 		}
 		else
 		{
@@ -503,7 +510,7 @@ public class BtmsPage extends JFrame {
 			busList.addItem(busLicencePlateTextField.getText());
 			busRepairList.addItem(busLicencePlateTextField.getText());
 			btms.addBus(busLicencePlateTextField.getText());
-			PersistenceXStream.saveToXMLwithXStream(btms);
+			PersistenceObjectStream.serialize(btms);
 		}
 		else
 		{
@@ -534,6 +541,7 @@ public class BtmsPage extends JFrame {
 			        }
 				}
 			}
+			PersistenceObjectStream.serialize(btms);
 			//busList.removeItemAt(selectedRepairBus);
 			// TOOD
 		}
@@ -555,10 +563,10 @@ public class BtmsPage extends JFrame {
         {
         	error += "Date cannot be before or todays date! ";
         }
-		if (selectedBus < 0)
-			error = error + "Bus needs to be selected for assignment! ";
-		if (selectedRoute < 0)
-			error = error + "Route needs to be selected for assignment!";
+//		if (selectedBus < 0)
+//			error = error + "Bus needs to be selected for assignment! ";
+//		if (selectedRoute < 0)
+//			error = error + "Route needs to be selected for assignment!";
 		if(!btms.hasDrivers()) error += "Need to have drivers to assign!";
 		java.sql.Date dateSelected = (java.sql.Date) selectedDate;
 		//Check if rws exists already
@@ -566,7 +574,7 @@ public class BtmsPage extends JFrame {
 		
 		//Find route from route list
 		Route routeToBeAssigned = null;
-		int routeNumToBeAssigned = Integer.parseInt(routeList.getItemAt(selectedRoute));
+		int routeNumToBeAssigned = Integer.parseInt(routeList.getSelectedItem().toString());
 		for( Route i : btms.getRoutes()){
 			if (i.getRouteNumber() == routeNumToBeAssigned){
 				routeToBeAssigned = i;
@@ -574,7 +582,7 @@ public class BtmsPage extends JFrame {
 		}
 		//Find bus from bus list
 		Bus temp = null;
-		String licensePlate = busList.getItemAt(selectedBus);
+		String licensePlate = busList.getSelectedItem().toString();
 		for( Bus i : btms.getBuses()){
 			if (i.getLicensePlate().equals(licensePlate)){
 				temp = i;
@@ -584,7 +592,7 @@ public class BtmsPage extends JFrame {
 		
 		//Find bus from bus list
 		Driver driverToBeAssigned = null;
-		String driverId = driverNotSickList.getItemAt(selectedDriver);
+		String driverId = driverNotSickList.getSelectedItem().toString();
 		for( Driver i : btms.getDrivers()){
 			if (i.getName().equals(driverId)){
 				driverToBeAssigned = i;
@@ -699,7 +707,7 @@ public class BtmsPage extends JFrame {
 			//Ready To display
 			if(error.length()== 0)
 			{
-				PersistenceXStream.saveToXMLwithXStream(btms);
+				PersistenceObjectStream.serialize(btms);
 			    //debugPrint();
 			    displayData();
 			}			
@@ -729,7 +737,7 @@ public class BtmsPage extends JFrame {
 						String shift = "" + i.getShiftName();
 						String busLicense = "" + j.getBus().getLicensePlate();
 						String driverName = "" + j.getDriver().getName();
-						String driverIdNum = "" + j.getDriver().getName();
+						String driverIdNum = "" + j.getDriver().getId();
 						dtm.addRow(new Object[] {routeNumber, date, shift,busLicense, driverName, driverIdNum});
 				}
 			}		
@@ -740,7 +748,7 @@ public class BtmsPage extends JFrame {
 						String shift = "" + i.getShiftName();
 						String busLicense = "" + j.getBus().getLicensePlate();
 						String driverName = "" + j.getDriver().getName();
-						String driverIdNum = "" + j.getDriver().getName();
+						String driverIdNum = "" + j.getDriver().getId();
 						dtm.addRow(new Object[] {routeNumber, date, shift,busLicense, driverName, driverIdNum});
 				}
 			}
@@ -751,7 +759,7 @@ public class BtmsPage extends JFrame {
 						String shift = "" + i.getShiftName();
 						String busLicense = "" + j.getBus().getLicensePlate();
 						String driverName = "" + j.getDriver().getName();
-						String driverIdNum = "" + j.getDriver().getName();
+						String driverIdNum = "" + j.getDriver().getId();
 						dtm.addRow(new Object[] {routeNumber, date, shift,busLicense, driverName, driverIdNum});
 				}
 			}
