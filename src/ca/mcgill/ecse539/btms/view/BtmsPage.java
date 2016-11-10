@@ -639,7 +639,7 @@ public class BtmsPage extends JFrame {
 					}
 				    
 				}
-				else if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
+				else if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					error += "Cannot Assign a broken bus!";
 				}
 				else{
@@ -677,7 +677,7 @@ public class BtmsPage extends JFrame {
 					}
 				    
 				}
-				else if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
+				else if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					error += "Cannot Assign a broken bus!";
 				}
 				else{
@@ -713,7 +713,7 @@ public class BtmsPage extends JFrame {
 					}
 				    
 				}
-				else if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
+				else if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					error += "Cannot Assign a broken bus!";
 				}
 				else{
