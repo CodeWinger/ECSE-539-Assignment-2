@@ -8,7 +8,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-// line 100 "../../../../../model.ump"
+// line 98 "../../../../../model.ump"
 public class DriverBusRouteTuple implements Serializable
 {
 
@@ -29,7 +29,7 @@ public class DriverBusRouteTuple implements Serializable
 
   public DriverBusRouteTuple(Driver aDriver, Bus aBus, Route aRoute, BTMS aBTMS, RouteWorkShift aRouteWorkShift)
   {
-    // line 116 "../../../../../model.ump"
+    // line 114 "../../../../../model.ump"
     final Date date;
     	    if (aRouteWorkShift instanceof MorningRouteWorkShift) {
     	    	date = ((MorningRouteWorkShift) aRouteWorkShift).getWorkDate();
@@ -108,7 +108,7 @@ public class DriverBusRouteTuple implements Serializable
   public boolean setDriver(Driver aDriver)
   {
     boolean wasSet = false;
-    // line 111 "../../../../../model.ump"
+    // line 109 "../../../../../model.ump"
     if(aDriver.getWorkStatus() == ca.mcgill.ecse539.btms.model.Driver.WorkStatus.SICK)
         			return false;
     if (aDriver == null)
@@ -130,7 +130,7 @@ public class DriverBusRouteTuple implements Serializable
   public boolean setBus(Bus aBus)
   {
     boolean wasSet = false;
-    // line 106 "../../../../../model.ump"
+    // line 104 "../../../../../model.ump"
     if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
         			return false;
     if (aBus == null)

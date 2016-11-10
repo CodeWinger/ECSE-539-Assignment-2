@@ -5,7 +5,7 @@ package ca.mcgill.ecse539.btms.model;
 import java.io.Serializable;
 import java.util.*;
 
-// line 88 "../../../../../model.ump"
+// line 85 "../../../../../model.ump"
 public class Route implements Serializable
 {
 
@@ -42,6 +42,10 @@ public class Route implements Serializable
       throw new RuntimeException("Unable to create route due to bTMS");
     }
     driverBusRouteTuples = new ArrayList<DriverBusRouteTuple>();
+    if (aRouteNumber<=0)
+    {
+      throw new RuntimeException("Please provide a valid routeNumber");
+    }
   }
 
   //------------------------
@@ -55,12 +59,15 @@ public class Route implements Serializable
     if (hasWithRouteNumber(aRouteNumber)) {
       return wasSet;
     }
+    if (aRouteNumber>0)
+    {
     routeNumber = aRouteNumber;
     wasSet = true;
     if (anOldRouteNumber != null) {
       routesByRouteNumber.remove(anOldRouteNumber);
     }
     routesByRouteNumber.put(aRouteNumber, this);
+    }
     return wasSet;
   }
 

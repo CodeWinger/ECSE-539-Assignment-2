@@ -5,7 +5,7 @@ package ca.mcgill.ecse539.btms.model;
 import java.io.Serializable;
 import java.util.*;
 
-// line 59 "../../../../../model.ump"
+// line 56 "../../../../../model.ump"
 public class Bus implements Serializable
 {
 

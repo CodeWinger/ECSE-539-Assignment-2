@@ -5,7 +5,7 @@ package ca.mcgill.ecse539.btms.model;
 import java.io.Serializable;
 import java.util.*;
 
-// line 73 "../../../../../model.ump"
+// line 70 "../../../../../model.ump"
 public class Driver implements Serializable
 {
 
@@ -13,6 +13,7 @@ public class Driver implements Serializable
   // STATIC VARIABLES
   //------------------------
 
+  private static Map<String, Driver> driversByName = new HashMap<String, Driver>();
   private static int nextId = 1;
 
   //------------------------
@@ -39,7 +40,10 @@ public class Driver implements Serializable
 
   public Driver(String aName, BTMS aBTMS)
   {
-    name = aName;
+    if (!setName(aName))
+    {
+      throw new RuntimeException("Cannot create due to duplicate name");
+    }
     id = nextId++;
     boolean didAddBTMS = setBTMS(aBTMS);
     if (!didAddBTMS)
@@ -54,9 +58,35 @@ public class Driver implements Serializable
   // INTERFACE
   //------------------------
 
+  public boolean setName(String aName)
+  {
+    boolean wasSet = false;
+    String anOldName = getName();
+    if (hasWithName(aName)) {
+      return wasSet;
+    }
+    name = aName;
+    wasSet = true;
+    if (anOldName != null) {
+      driversByName.remove(anOldName);
+    }
+    driversByName.put(aName, this);
+    return wasSet;
+  }
+
   public String getName()
   {
     return name;
+  }
+
+  public static Driver getWithName(String aName)
+  {
+    return driversByName.get(aName);
+  }
+
+  public static boolean hasWithName(String aName)
+  {
+    return getWithName(aName) != null;
   }
 
   public int getId()
@@ -244,6 +274,7 @@ public class Driver implements Serializable
 
   public void delete()
   {
+    driversByName.remove(getName());
     BTMS placeholderBTMS = bTMS;
     this.bTMS = null;
     placeholderBTMS.removeDriver(this);

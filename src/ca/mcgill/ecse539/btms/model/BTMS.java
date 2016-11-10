@@ -535,6 +535,8 @@ public class BTMS implements Serializable
 
   public MorningRouteWorkShift addMorningRouteWorkShift(Date aWorkDate)
   {
+	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
     return new MorningRouteWorkShift(aWorkDate, this);
   }
 
@@ -607,6 +609,8 @@ public class BTMS implements Serializable
 
   public AfternoonRouteWorkShift addAfternoonRouteWorkShift(Date aWorkDate)
   {
+	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
     return new AfternoonRouteWorkShift(aWorkDate, this);
   }
 
@@ -679,6 +683,8 @@ public class BTMS implements Serializable
 
   public NightRouteWorkShift addNightRouteWorkShift(Date aWorkDate)
   {
+	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
+	 		return null;
     return new NightRouteWorkShift(aWorkDate, this);
   }
 

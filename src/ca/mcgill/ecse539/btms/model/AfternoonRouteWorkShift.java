@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.sql.Date;
 import java.util.*;
 
-// line 147 "../../../../../model.ump"
+// line 145 "../../../../../model.ump"
 public class AfternoonRouteWorkShift extends RouteWorkShift implements Serializable
 {
 

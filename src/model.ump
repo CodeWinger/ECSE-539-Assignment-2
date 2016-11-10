@@ -53,9 +53,6 @@ information regarding this issue.*/
 
 }
 
-interface Serializable {
-}
-
 class Bus
 {  
   isA Serializable;
@@ -71,8 +68,8 @@ class Bus
 }
 
 class Driver{
-	 isA Serializable;
-   immutable String name;
+	isA Serializable;
+   unique String name;
    autounique id;
   
   workStatus {
@@ -86,8 +83,9 @@ class Driver{
 }
 
 class Route {
-	 isA Serializable;
+	isA Serializable;
 	unique Integer routeNumber;
+	[routeNumber > 0]
 }
 
 class RouteWorkShift {
@@ -103,7 +101,7 @@ class DriverBusRouteTuple {
  	* -- 1 Bus;
  	* -- 1 Route;
  	
- 		before setBus{
+ 	before setBus{
 		 if(aBus.getBusStatus() ==  ca.mcgill.ecse539.btms.model.Bus.BusStatus.IN_REPAIR)
     			return false;
 	}
@@ -158,4 +156,7 @@ class NightRouteWorkShift{
 	
 	unique Date workDate;
 	immutable shiftName = "Night";
+}
+
+interface Serializable {
 }
