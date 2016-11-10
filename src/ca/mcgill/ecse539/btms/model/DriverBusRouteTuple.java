@@ -3,6 +3,10 @@
 
 package ca.mcgill.ecse539.btms.model;
 
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
+
 // line 94 "../../../../../model.ump"
 public class DriverBusRouteTuple
 {
