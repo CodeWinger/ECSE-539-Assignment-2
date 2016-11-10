@@ -17,12 +17,7 @@ singleton;
  instead the code written below has been directly hard-coded in the BTMS constructor.
  Future automatic generations of the model will not have this code written anywhere.
  See the report for more information regarding this issue.*/
- before BTMS {
-	Calendar calendar = Calendar.getInstance();
-	setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
-	calendar.add(Calendar.DATE, 3);
-	setThreeDaysAhead(new java.sql.Date(calendar.getTime().getTime()));
-	}
+
  
  /*WARNING: currently in BTMS, there are 3 methods with each of them being overloaded once for
  a total of 6 methods. They are:
@@ -47,9 +42,12 @@ information regarding this issue.*/
 	}
 */
 
-	
-
-
+ before constructor {
+	Calendar calendar = Calendar.getInstance();
+	setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
+	calendar.add(Calendar.DATE, 3);
+	setThreeDaysAhead(new java.sql.Date(calendar.getTime().getTime()));
+	}
 	
 
 }
@@ -108,10 +106,8 @@ class DriverBusRouteTuple{
     			return false;
 	}
 	
- 	
- 	/**Warnining, could not add code to constructor, adding it manually
- 	before DriverBusRouteTuple{
- 	 final Date date;
+	before constructor{
+		final Date date;
 	    if (aRouteWorkShift instanceof MorningRouteWorkShift) {
 	    	date = ((MorningRouteWorkShift) aRouteWorkShift).getWorkDate();
 	    } else if ( aRouteWorkShift instanceof AfternoonRouteWorkShift) {
@@ -122,15 +118,15 @@ class DriverBusRouteTuple{
 	    	date = null;
 	    }
 	    
-	    List<DriverBusRouteTuple> all = new ArrayList<DriverBusRouteTuple>();
-	    aBus.getBTMS().getMorningRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).map(all::addAll);
-	    aBus.getBTMS().getAfternoonRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).map(all::addAll);
-	    aBus.getBTMS().getNightRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).map(all::addAll);
+	    List<DriverBusRouteTuple> assignmentsForGivenDay = new ArrayList<DriverBusRouteTuple>();
+	    aBTMS.getAfternoonRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).forEach(assignmentsForGivenDay::addAll);
+	    aBTMS.getMorningRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).forEach(assignmentsForGivenDay::addAll);
+	    aBTMS.getNightRouteWorkShifts().stream().filter(s -> s.getWorkDate().equals(date)).map(s -> s.getDriverBusRouteTuples()).forEach(assignmentsForGivenDay::addAll);
 	    
-	    if ( all.stream().anyMatch(s -> s.route.equals(aRoute)))
+	    if ( assignmentsForGivenDay.stream().anyMatch(a -> a.getRoute().getRouteNumber() != aRoute.getRouteNumber())) {
 	    	throw new RuntimeException("cannot assign a bus to different route for the same day!");
- 	}
- 	*/
+	    }
+	}
 }
 
 class MorningRouteWorkShift{
