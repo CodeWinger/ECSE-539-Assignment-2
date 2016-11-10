@@ -2,10 +2,11 @@
 /*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 86 "../../../../../model.ump"
-public abstract class RouteWorkShift
+// line 93 "../../../../../model.ump"
+public abstract class RouteWorkShift implements Serializable
 {
 
   //------------------------

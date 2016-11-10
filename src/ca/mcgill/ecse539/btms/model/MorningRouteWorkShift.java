@@ -2,11 +2,12 @@
 /*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.*;
 
-// line 132 "../../../../../model.ump"
-public class MorningRouteWorkShift extends RouteWorkShift
+// line 139 "../../../../../model.ump"
+public class MorningRouteWorkShift extends RouteWorkShift implements Serializable
 {
 
   //------------------------

@@ -11,7 +11,7 @@ public class Btms {
 	public static void main(String[] args) {
 		// load model
 		// TODO
-		PersistenceBTMS.loadEventRegistrationModel();
+		//PersistenceBTMS.loadEventRegistrationModel();
 		// start UI
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

@@ -2,10 +2,11 @@
 /*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 82 "../../../../../model.ump"
-public class Route
+// line 88 "../../../../../model.ump"
+public class Route implements Serializable
 {
 
   //------------------------

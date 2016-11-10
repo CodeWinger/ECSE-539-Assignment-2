@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -41,6 +42,7 @@ import ca.mcgill.ecse539.btms.model.MorningRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.NightRouteWorkShift;
 import ca.mcgill.ecse539.btms.model.Route;
 import ca.mcgill.ecse539.btms.model.RouteWorkShift;
+import ca.mcgill.ecse539.btms.persistence.PersistenceObjectStream;
 import ca.mcgill.ecse539.btms.persistence.PersistenceXStream;
 
 
@@ -105,11 +107,15 @@ public class BtmsPage extends JFrame {
 	private Integer selectedShift= 0;
 	private JLabel sickLabel;
 	private JLabel repairLabel;
-	public BTMS btms = BTMS.getInstance();
+	public BTMS btms; // = BTMS.getInstance();
 
 
 	/** Creates new form EventRegistrationPage */
 	public BtmsPage() {
+		btms = PersistenceObjectStream.deserialize();
+		if ( btms == null) {
+			btms = BTMS.getInstance();
+		}
 		initComponents();
 		refreshData();
 	}
@@ -126,7 +132,8 @@ public class BtmsPage extends JFrame {
 		driverNameTextField = new JTextField();
 		driverNameLabel = new JLabel();
 		addDriverButton = new JButton();
-		driverList = new JComboBox<String>(new String[0]);
+		String[] test = (String[]) btms.getDrivers().stream().map(d -> d.getName()).collect(Collectors.toList()).toArray(new String[0]);
+		driverList = new JComboBox<String>(test);
 		driverList.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 		        JComboBox<String> cb = (JComboBox<String>) evt.getSource();
@@ -434,7 +441,8 @@ public class BtmsPage extends JFrame {
 	        driverList.addItem(driverNameTextField.getText()); 
 	        driverNotSickList.addItem(driverNameTextField.getText()); 
 	        btms.addDriver(driverNameTextField.getText());
-			PersistenceXStream.saveToXMLwithXStream(btms);
+	        PersistenceObjectStream.serialize(btms);
+			//PersistenceXStream.saveToXMLwithXStream(btms); 
 		}
 
 		// update visuals

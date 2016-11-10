@@ -1,6 +1,7 @@
 namespace ca.mcgill.ecse539.btms.model;
 
 class BTMS{
+ isA Serializable;
 singleton;
 1 <@>- * Bus;
 1 <@>- * Route;
@@ -52,8 +53,12 @@ information regarding this issue.*/
 
 }
 
+interface Serializable {
+}
+
 class Bus
 {  
+  isA Serializable;
   unique String licensePlate;
   busStatus {
   		FUNCTIONNAL {
@@ -66,6 +71,7 @@ class Bus
 }
 
 class Driver{
+	 isA Serializable;
    immutable String name;
    autounique id;
   
@@ -80,18 +86,19 @@ class Driver{
 }
 
 class Route {
+	 isA Serializable;
 	unique Integer routeNumber;
 }
 
 class RouteWorkShift {
+ isA Serializable;
 	abstract;
 	1 -- * DriverBusRouteTuple;
 
-
-	
 }
 
-class DriverBusRouteTuple{
+class DriverBusRouteTuple {
+ isA Serializable;
  	* -- 1 Driver;
  	* -- 1 Bus;
  	* -- 1 Route;
@@ -130,6 +137,7 @@ class DriverBusRouteTuple{
 }
 
 class MorningRouteWorkShift{
+ isA Serializable;
 	isA RouteWorkShift;
 	
 	unique Date workDate;
@@ -137,6 +145,7 @@ class MorningRouteWorkShift{
 }
 
 class AfternoonRouteWorkShift{
+ isA Serializable;
 	isA RouteWorkShift;
 	
 	unique Date workDate;
@@ -144,6 +153,7 @@ class AfternoonRouteWorkShift{
 }
 
 class NightRouteWorkShift{
+ isA Serializable;
 	isA RouteWorkShift;
 	
 	unique Date workDate;

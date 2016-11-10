@@ -2,11 +2,12 @@
 /*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.*;
 
 // line 3 "../../../../../model.ump"
-public class BTMS
+public class BTMS implements Serializable
 {
 
   //------------------------
@@ -42,7 +43,7 @@ public class BTMS
 
   private BTMS()
   {
-    // line 45 "../../../../../model.ump"
+    // line 46 "../../../../../model.ump"
     Calendar calendar = Calendar.getInstance();
     	setCurrentDate(new java.sql.Date(calendar.getTime().getTime()));
     	calendar.add(Calendar.DATE, 3);
@@ -534,8 +535,6 @@ public class BTMS
 
   public MorningRouteWorkShift addMorningRouteWorkShift(Date aWorkDate)
   {
-	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
-	 		return null;
     return new MorningRouteWorkShift(aWorkDate, this);
   }
 
@@ -608,8 +607,6 @@ public class BTMS
 
   public AfternoonRouteWorkShift addAfternoonRouteWorkShift(Date aWorkDate)
   {
-	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
-	 		return null;
     return new AfternoonRouteWorkShift(aWorkDate, this);
   }
 
@@ -682,8 +679,6 @@ public class BTMS
 
   public NightRouteWorkShift addNightRouteWorkShift(Date aWorkDate)
   {
-	  if( !(aWorkDate.after(getCurrentDate()) && aWorkDate.before(getThreeDaysAhead())))
-	 		return null;
     return new NightRouteWorkShift(aWorkDate, this);
   }
 

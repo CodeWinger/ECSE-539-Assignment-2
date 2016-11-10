@@ -2,10 +2,11 @@
 /*This code was generated using the UMPLE 1.22.0.5146 modeling language!*/
 
 package ca.mcgill.ecse539.btms.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 55 "../../../../../model.ump"
-public class Bus
+// line 59 "../../../../../model.ump"
+public class Bus implements Serializable
 {
 
   //------------------------
