@@ -442,13 +442,16 @@ public class BtmsPage extends JFrame {
 		// call the controller
 		error = "";
 		// TODO
-		if(!driverNameTextField.getText().equals("") && (((DefaultComboBoxModel) routeList.getModel()).getIndexOf(routeNumberTextField.getText()) == -1))
+		if(!driverNameTextField.getText().equals("") && (((DefaultComboBoxModel) driverList.getModel()).getIndexOf(driverNameTextField.getText()) == -1))
 		{
 	        driverList.addItem(driverNameTextField.getText()); 
 	        driverNotSickList.addItem(driverNameTextField.getText()); 
 	        btms.addDriver(driverNameTextField.getText());
 	        PersistenceObjectStream.serialize(btms);
 			//PersistenceXStream.saveToXMLwithXStream(btms); 
+		}
+		else{
+			error += "Driver already in the Database! ";
 		}
 
 		// update visuals
@@ -623,7 +626,13 @@ public class BtmsPage extends JFrame {
 						
 				if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					if(!driverToBeAssigned.getWorkStatusFullName().contentEquals("SICK")){
-						rws.addDriverBusRouteTuple(driverToBeAssigned, busToBeAssigned, routeToBeAssigned, btms);
+						try{
+							rws.addDriverBusRouteTuple(driverToBeAssigned, busToBeAssigned, routeToBeAssigned, btms);
+						}
+						catch(Exception e){
+							error += "Cannot assign one bus to more than one route on the same day! ";
+						}
+						
 					}
 					else{
 						error += "Cannot Assign a sick driver!";
@@ -656,7 +665,12 @@ public class BtmsPage extends JFrame {
 						
 				if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned))&& !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					if(!driverToBeAssigned.getWorkStatusFullName().contentEquals("SICK")){
-						rws.addDriverBusRouteTuple(driverToBeAssigned, busToBeAssigned, routeToBeAssigned, btms);
+						try{
+							rws.addDriverBusRouteTuple(driverToBeAssigned, busToBeAssigned, routeToBeAssigned, btms);
+						}
+						catch(Exception e){
+							error += "Cannot assign one bus to more than one route on the same day! ";
+						}
 					}
 					else{
 						error += "Cannot Assign a sick driver!";
@@ -687,7 +701,12 @@ public class BtmsPage extends JFrame {
 				}  
 				if(!rws.getDriverBusRouteTuples().stream().map(t -> t.getBus()).anyMatch(b -> b.equals(busToBeAssigned)) && !busToBeAssigned.getBusStatusFullName().equals("IN_REPAIR")){
 					if(!driverToBeAssigned.getWorkStatusFullName().contentEquals("SICK")){
-						rws.addDriverBusRouteTuple(driverToBeAssigned, busToBeAssigned, routeToBeAssigned, btms);
+						try{
+							rws.addDriverBusRouteTuple(driverToBeAssigned, busToBeAssigned, routeToBeAssigned, btms);
+						}
+						catch(Exception e){
+							error += "Cannot assign one bus to more than one route on the same day! ";
+						}
 					}
 					else{
 						error += "Cannot Assign a sick driver!";
@@ -708,8 +727,6 @@ public class BtmsPage extends JFrame {
 			if(error.length()== 0)
 			{
 				PersistenceObjectStream.serialize(btms);
-			    //debugPrint();
-			    //displayData();
 				refreshData();
 			}			
 			
